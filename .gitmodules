@@ -1,3 +1,6 @@
 [submodule "microservice-gateway"]
 	path = microservice-gateway
 	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/microservice-gateway.git
+[submodule "beneficiary-microservice"]
+	path = beneficiary-microservice
+	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/beneficiary-microservice.git
