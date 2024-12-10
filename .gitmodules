@@ -10,3 +10,6 @@
 [submodule "auth-microservice"]
 	path = auth-microservice
 	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/auth-microservice.git
+[submodule "kiosk-microservice"]
+	path = kiosk-microservice
+	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/kiosk-microservice.git
