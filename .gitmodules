@@ -7,3 +7,6 @@
 [submodule "general-microservice"]
 	path = general-microservice
 	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/general-microservice.git
+[submodule "auth-microservice"]
+	path = auth-microservice
+	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/auth-microservice.git
