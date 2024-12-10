@@ -1,0 +1,49 @@
+services:
+
+  nats-server:
+    build: ./microservice-gateway/nats
+    ports:
+      - 8222:8222
+
+  microservice-gateway:
+    build: ./microservice-gateway
+    ports:
+      - ${CLIENT_GATEWAY_PORT}:3000
+    volumes:
+      - ./microservice-gateway/src:/usr/src/app/src
+    command: yarn start:dev
+    environment:
+      - PORT=3000
+      - NATS_SERVERS=http://nats-server:4222
+
+  beneficiary-microservice:
+    build: ./beneficiary-microservice
+    volumes:
+      - ./beneficiary-microservice/src:/usr/src/app/src
+    command: yarn start:dev
+    environment:
+      - NATS_SERVERS=http://nats-server:4222
+
+  general-microservice:
+    build: ./general-microservice
+    volumes:
+      - ./general-microservice/src:/usr/src/app/src
+    command: yarn start:dev
+    environment:
+      - NATS_SERVERS=http://nats-server:4222
+
+  auth-microservice:
+    build: ./auth-microservice
+    volumes:
+      - ./auth-microservice/src:/usr/src/app/src
+    command: yarn start:dev
+    environment:
+      - NATS_SERVERS=http://nats-server:4222
+
+  kiosk-microservice:
+    build: ./kiosk-microservice
+    volumes:
+      - ./kiosk-microservice/src:/usr/src/app/src
+    command: yarn start:dev
+    environment:
+      - NATS_SERVERS=http://nats-server:4222
