@@ -1,30 +1,33 @@
+## Antes de ejecutar, revisar si se tiene la base de datos bien configurada con los schemas creados para cada microservicio
 
 ## Dev
 
 1. Clonar el repositorio
 2. Crear un .env basado en el .env.example
 3. Ejecutar  el comando `git submodule update --init --recursive` para reconstruir los sub-modulos
-4. Ejecutar el comando `docker compose up --build`
+4. para cada sub-modulo crear un .env basado en su propio .env. example
+5. Ejecutar el comando `docker compose up --build`
 
-## Pasos para crear los Git Submodules
+## Pasos para añadir/crear los Git Submodules (un nuevo microservicio)
 
 1. Crear un nuevo repositorio en GitHub
-2. Clonar el repositorio en la máquina local
-3. Añadir el submodule, donde repository_url es la url del repositorio y directory_name es el nombre de la carpeta donde quieres que se guarde el sub-módulo (no debe de existir en el proyecto)
+2. Copiar el Url de nuevo repositorio y añadir en el clonado del repositorio padre MUSERPOL-MS local ejecutar:
 
 git submodule add <repository_url> <directory_name>
 
-4. Añadir los cambios al repositorio (git add, git commit, git push) Ej:
+3. Añadir los cambios al repositorio  MUSERPOL-MS (git add, git commit, git push) Ej:
 
 git add .
 git commit -m "Add submodule"
 git push
 
-5. Inicializar y actualizar Sub-módulos, cuando alguien clona el repositorio por primera vez, debe de ejecutar el siguiente comando para inicializar y actualizar los sub-módulos
+## Pasos después de clonar el repositorio MUSERPOL-MS
+
+1. Inicializar y actualizar Sub-módulos, cuando alguien clona el repositorio por primera vez, debe de ejecutar el siguiente comando para inicializar y actualizar los sub-módulos
 
 git submodule update --init --recursive
 
-6. Para actualizar las referencias de los sub-módulos
+2. Para actualizar las referencias de los sub-módulos
 
 git submodule update --remote
 
@@ -34,7 +37,7 @@ Si se trabaja en el repositorio que tiene los sub-módulos, primero actualizar y
 
 Si se hace al revés, se perderán las referencias de los sub-módulos en el repositorio principal y tendremos que resolver conflictos.
 
-## PROD
+## Prod
 
 Ejecutar
 
