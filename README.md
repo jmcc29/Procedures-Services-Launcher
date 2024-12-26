@@ -41,5 +41,15 @@ Si se hace al revés, se perderán las referencias de los sub-módulos en el rep
 
 Ejecutar
 
-docker compose -f docker-compose.prod.yml build
-docker compose up -d
+```
+docker compose -f docker-compose.prod.yml build --no-cache && docker compose -f docker-compose.prod.yml up -d
+
+```
+
+## Para actualizar repositorio en Prod  (git pull en los proyectos con modificaciones)
+```
+git pull origin main
+
+docker compose down && docker image prune -af && docker compose -f docker-compose.prod.yml up -d --build
+
+```
