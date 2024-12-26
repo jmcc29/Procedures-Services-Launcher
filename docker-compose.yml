@@ -12,28 +12,33 @@ services:
       - ${CLIENT_GATEWAY_PORT}:3000
     volumes:
       - ./microservice-gateway/src:/usr/src/app/src
+      - ./microservice-gateway/.env:/usr/src/app/.env 
     command: yarn start:dev
 
   beneficiary-microservice:
     build: ./beneficiary-microservice
     volumes:
       - ./beneficiary-microservice/src:/usr/src/app/src
+      - ./beneficiary-microservice/.env:/usr/src/app/.env 
     command: yarn start:dev
 
   general-microservice:
     build: ./general-microservice
     volumes:
       - ./general-microservice/src:/usr/src/app/src
+      - ./general-microservice/.env:/usr/src/app/.env
     command: yarn start:dev
 
   auth-microservice:
     build: ./auth-microservice
     volumes:
       - ./auth-microservice/src:/usr/src/app/src
+      - ./auth-microservice/.env:/usr/src/app/.env
     command: yarn start:dev
 
   kiosk-microservice:
     build: ./kiosk-microservice
     volumes:
       - ./kiosk-microservice/src:/usr/src/app/src
+      - ./kiosk-microservice/.env:/usr/src/app/.env
     command: yarn start:dev
