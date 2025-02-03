@@ -13,13 +13,15 @@ services:
     volumes:
       - ./microservice-gateway/src:/usr/src/app/src
       - ./microservice-gateway/.env:/usr/src/app/.env 
+      - ./microservice-gateway/package.json:/usr/src/app/package.json
     command: yarn start:dev
 
   beneficiary-microservice:
     build: ./beneficiary-microservice
     volumes:
       - ./beneficiary-microservice/src:/usr/src/app/src
-      - ./beneficiary-microservice/.env:/usr/src/app/.env 
+      - ./beneficiary-microservice/.env:/usr/src/app/.env
+      - ./beneficiary-microservice/package.json:/usr/src/app/package.json
     command: yarn start:dev
 
   general-microservice:
@@ -27,6 +29,7 @@ services:
     volumes:
       - ./general-microservice/src:/usr/src/app/src
       - ./general-microservice/.env:/usr/src/app/.env
+      - ./general-microservice/package.json:/usr/src/app/package.json
     command: yarn start:dev
 
   auth-microservice:
@@ -34,6 +37,7 @@ services:
     volumes:
       - ./auth-microservice/src:/usr/src/app/src
       - ./auth-microservice/.env:/usr/src/app/.env
+      - ./auth-microservice/package.json:/usr/src/app/package.json
     command: yarn start:dev
 
   kiosk-microservice:
@@ -41,4 +45,5 @@ services:
     volumes:
       - ./kiosk-microservice/src:/usr/src/app/src
       - ./kiosk-microservice/.env:/usr/src/app/.env
+      - ./kiosk-microservice/package.json:/usr/src/app/package.json
     command: yarn start:dev
