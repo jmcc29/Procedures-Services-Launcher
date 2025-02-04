@@ -6,7 +6,7 @@
 2. Crear un .env basado en el .env.example
 3. Ejecutar  el comando `git submodule update --init --recursive` para reconstruir los sub-modulos
 4. para cada sub-modulo crear un .env basado en su propio .env. example
-5. Ejecutar el comando `docker compose up --build`
+5. Ejecutar el comando `docker compose build --no-cache && docker compose up`
 
 ## Pasos para añadir/crear los Git Submodules (un nuevo microservicio)
 
@@ -43,13 +43,5 @@ Ejecutar
 
 ```
 docker compose -f docker-compose.prod.yml build --no-cache && docker compose -f docker-compose.prod.yml up -d
-
-```
-
-## Para actualizar repositorio en Prod  (git pull en los proyectos con modificaciones)
-```
-git pull origin main
-
-docker compose down && docker image prune -af && docker compose -f docker-compose.prod.yml up -d --build
 
 ```

@@ -5,6 +5,7 @@ services:
     ports:
       - 8222:8222
       - 4222:4222
+    restart: always
 
   microservice-gateway:
     build: ./microservice-gateway
@@ -15,6 +16,7 @@ services:
       - ./microservice-gateway/.env:/usr/src/app/.env 
       - ./microservice-gateway/package.json:/usr/src/app/package.json
     command: yarn start:dev
+    restart: always
 
   beneficiary-microservice:
     build: ./beneficiary-microservice
@@ -23,6 +25,7 @@ services:
       - ./beneficiary-microservice/.env:/usr/src/app/.env
       - ./beneficiary-microservice/package.json:/usr/src/app/package.json
     command: yarn start:dev
+    restart: always
 
   general-microservice:
     build: ./general-microservice
@@ -31,6 +34,7 @@ services:
       - ./general-microservice/.env:/usr/src/app/.env
       - ./general-microservice/package.json:/usr/src/app/package.json
     command: yarn start:dev
+    restart: always
 
   auth-microservice:
     build: ./auth-microservice
@@ -39,6 +43,7 @@ services:
       - ./auth-microservice/.env:/usr/src/app/.env
       - ./auth-microservice/package.json:/usr/src/app/package.json
     command: yarn start:dev
+    restart: always
 
   kiosk-microservice:
     build: ./kiosk-microservice
@@ -47,3 +52,4 @@ services:
       - ./kiosk-microservice/.env:/usr/src/app/.env
       - ./kiosk-microservice/package.json:/usr/src/app/package.json
     command: yarn start:dev
+    restart: always
