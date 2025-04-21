@@ -10,11 +10,13 @@ services:
     build: 
       context: ./microservice-gateway
       dockerfile: dockerfile.prod
+    env_file:
+      - .env
+      - ./microservice-gateway/.env.compose
     ports:
       - ${CLIENT_GATEWAY_PORT}:3000
     volumes:
       - ./microservice-gateway/src:/usr/src/app/src
-      - ./microservice-gateway/.env:/usr/src/app/.env
       - ./microservice-gateway/package.json:/usr/src/app/package.json
     restart: always
 
@@ -22,9 +24,11 @@ services:
     build: 
       context: ./beneficiary-microservice
       dockerfile: dockerfile.prod
+    env_file:
+      - .env
+      - ./beneficiary-microservice/.env.compose
     volumes:
       - ./beneficiary-microservice/src:/usr/src/app/src
-      - ./beneficiary-microservice/.env:/usr/src/app/.env
       - ./beneficiary-microservice/package.json:/usr/src/app/package.json
     restart: always
 
@@ -32,9 +36,11 @@ services:
     build: 
       context: ./general-microservice
       dockerfile: dockerfile.prod
+    env_file:
+      - .env
+      - ./general-microservice/.env.compose
     volumes:
       - ./general-microservice/src:/usr/src/app/src
-      - ./general-microservice/.env:/usr/src/app/.env
       - ./general-microservice/package.json:/usr/src/app/package.json
     restart: always
 
@@ -42,9 +48,11 @@ services:
     build: 
       context: ./auth-microservice
       dockerfile: dockerfile.prod
+    env_file:
+      - .env
+      - ./auth-microservice/.env.compose
     volumes:
       - ./auth-microservice/src:/usr/src/app/src
-      - ./auth-microservice/.env:/usr/src/app/.env
       - ./auth-microservice/package.json:/usr/src/app/package.json
     restart: always
 
@@ -52,8 +60,10 @@ services:
     build: 
       context: ./kiosk-microservice
       dockerfile: dockerfile.prod
+    env_file:
+      - .env
+      - ./kiosk-microservice/.env.compose
     volumes:
       - ./kiosk-microservice/src:/usr/src/app/src
-      - ./kiosk-microservice/.env:/usr/src/app/.env
       - ./kiosk-microservice/package.json:/usr/src/app/package.json
     restart: always
