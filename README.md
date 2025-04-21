@@ -39,9 +39,32 @@ Si se hace al revés, se perderán las referencias de los sub-módulos en el rep
 
 ## Prod
 
-Ejecutar
-
+1. Clonar el repositorio
+2. Crear el .env basado en el .env.template
+    Este archivo posee las variables que se heredaran a los microservicios mediante el archivo docker-compose.prod
+3. Ejecutar  el comando ```git submodule update --init --recursive``` para inicializar los sub-modulos
+4. En cada submodulo crear su propio .env.compose basado en el .env.compose.template
+    Estos archivos tienen las variables unicas que pertenecen solamente a ese servicio
+5. En la base de datos ejecutar el siguiente query
+```sql
+CREATE SCHEMA IF NOT EXISTS beneficiaries;
+CREATE SCHEMA IF NOT EXISTS kiosk;
+CREATE SCHEMA IF NOT EXISTS auth;
 ```
+6. Ejecutar el comando para construir las imagenes
+```sh
 docker compose -f docker-compose.prod.yml build --no-cache && docker compose -f docker-compose.prod.yml up -d
 
 ```
+7. Ingresar al contenedor de beneficiary-microservice y ejecutar sus migraciones y seeders
+```sh
+docker compose -f docker-compose.prod.yml exec beneficiary-microservice sh
+yarn migration:run
+yarn seed:run
+```
+7. Ingresar el contenedor microservice-gateway y ejecutar su migración
+```sh
+docker compose -f docker-compose.prod.yml exec microservice-gateway sh
+yarn migration:run
+```
+
