@@ -37,13 +37,23 @@ Si se trabaja en el repositorio que tiene los sub-módulos, primero actualizar y
 
 Si se hace al revés, se perderán las referencias de los sub-módulos en el repositorio principal y tendremos que resolver conflictos.
 
-## Prod
+# Prod
 
+## Introducción
+### Nota
+En producción las variables de entorno se estan pasando mediante el archivo docker-compose.prod, ahi se seleccionan los archivos .env que se usaran en 
+cada microservicio, el .env del proyecto padre contiene las variables generales que se usan en dos o mas microservicios, como ser, la conexion con la base de datos, 
+conexion con el servidor nats. En cada submodulo o microservicio, se encuentra un archivo .env.compose, en este archivo se colocan las variables unicas del servicio
+
+### Pasos para levantar el proyecto
 1. Clonar el repositorio
-2. Crear el .env basado en el .env.template
+2. Crear el .env basado en el .env.template \
     Este archivo posee las variables que se heredaran a los microservicios mediante el archivo docker-compose.prod
-3. Ejecutar  el comando ```git submodule update --init --recursive``` para inicializar los sub-modulos
-4. En cada submodulo crear su propio .env.compose basado en el .env.compose.template
+3. Ejecutar el siguiente comando para inicializar los sub-modulos
+```sh
+git submodule update --init --recursive
+``` 
+4. En cada submodulo crear su propio .env.compose basado en el .env.compose.template \
     Estos archivos tienen las variables unicas que pertenecen solamente a ese servicio
 5. En la base de datos ejecutar el siguiente query
 ```sql
