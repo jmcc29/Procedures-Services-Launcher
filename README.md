@@ -67,12 +67,17 @@ docker compose -f docker-compose.prod.yml build --no-cache && docker compose -f 
 
 ```
 7. Ingresar al contenedor de beneficiary-microservice y ejecutar sus migraciones y seeders
+**Importante**
+Primero ejecutar en pvt-be
+```sh
+php artisan db:seed --class=SimplificaciónRequisitos
+```
 ```sh
 docker compose -f docker-compose.prod.yml exec beneficiary-microservice sh
 yarn migration:run
 yarn seed:run
 ```
-7. Ingresar el contenedor microservice-gateway y ejecutar su migración
+8. Ingresar el contenedor microservice-gateway y ejecutar su migración
 ```sh
 docker compose -f docker-compose.prod.yml exec microservice-gateway sh
 yarn migration:run
