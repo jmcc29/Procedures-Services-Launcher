@@ -1,15 +1,15 @@
-[submodule "microservice-gateway"]
-	path = microservice-gateway
-	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/microservice-gateway.git
-[submodule "beneficiary-microservice"]
-	path = beneficiary-microservice
-	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/beneficiary-microservice.git
-[submodule "general-microservice"]
-	path = general-microservice
-	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/general-microservice.git
-[submodule "auth-microservice"]
-	path = auth-microservice
-	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/auth-microservice.git
-[submodule "kiosk-microservice"]
-	path = kiosk-microservice
-	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/kiosk-microservice.git
+[submodule "Gateway-Service"]
+	path = Gateway-Service
+	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/Gateway-Service.git
+[submodule "Beneficiary-Service"]
+	path = Beneficiary-Service
+	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/Beneficiary-Service.git
+[submodule "Global-Service"]
+	path = Global-Service
+	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/Global-Service.git
+[submodule "Auth-Service"]
+	path = Auth-Service
+	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/Auth-Service.git
+[submodule "Kiosk-Service"]
+	path = Kiosk-Service
+	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/Kiosk-Service.git
