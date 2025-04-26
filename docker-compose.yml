@@ -1,55 +1,55 @@
 services:
 
-  nats-server:
-    build: ./microservice-gateway/nats
+  Nats-Server:
+    build: ./Gateway-Service/nats
     ports:
       - 8222:8222
       - 4222:4222
     restart: always
 
-  microservice-gateway:
-    build: ./microservice-gateway
+  Gateway-Service:
+    build: ./Gateway-Service
     ports:
       - ${CLIENT_GATEWAY_PORT}:3000
     volumes:
-      - ./microservice-gateway/src:/usr/src/app/src
-      - ./microservice-gateway/.env:/usr/src/app/.env 
-      - ./microservice-gateway/package.json:/usr/src/app/package.json
+      - ./Gateway-Service/src:/usr/src/app/src
+      - ./Gateway-Service/.env:/usr/src/app/.env 
+      - ./Gateway-Service/package.json:/usr/src/app/package.json
     command: yarn start:dev
     restart: always
 
-  beneficiary-microservice:
-    build: ./beneficiary-microservice
+  Beneficiary-Service:
+    build: ./Beneficiary-Service
     volumes:
-      - ./beneficiary-microservice/src:/usr/src/app/src
-      - ./beneficiary-microservice/.env:/usr/src/app/.env
-      - ./beneficiary-microservice/package.json:/usr/src/app/package.json
+      - ./Beneficiary-Service/src:/usr/src/app/src
+      - ./Beneficiary-Service/.env:/usr/src/app/.env
+      - ./Beneficiary-Service/package.json:/usr/src/app/package.json
     command: yarn start:dev
     restart: always
 
-  general-microservice:
-    build: ./general-microservice
+  Global-Service:
+    build: ./Global-Service
     volumes:
-      - ./general-microservice/src:/usr/src/app/src
-      - ./general-microservice/.env:/usr/src/app/.env
-      - ./general-microservice/package.json:/usr/src/app/package.json
+      - ./Global-Service/src:/usr/src/app/src
+      - ./Global-Service/.env:/usr/src/app/.env
+      - ./Global-Service/package.json:/usr/src/app/package.json
     command: yarn start:dev
     restart: always
 
-  auth-microservice:
-    build: ./auth-microservice
+  Auth-Service:
+    build: ./Auth-Service
     volumes:
-      - ./auth-microservice/src:/usr/src/app/src
-      - ./auth-microservice/.env:/usr/src/app/.env
-      - ./auth-microservice/package.json:/usr/src/app/package.json
+      - ./Auth-Service/src:/usr/src/app/src
+      - ./Auth-Service/.env:/usr/src/app/.env
+      - ./Auth-Service/package.json:/usr/src/app/package.json
     command: yarn start:dev
     restart: always
 
-  kiosk-microservice:
-    build: ./kiosk-microservice
+  Kiosk-Service:
+    build: ./Kiosk-Service
     volumes:
-      - ./kiosk-microservice/src:/usr/src/app/src
-      - ./kiosk-microservice/.env:/usr/src/app/.env
-      - ./kiosk-microservice/package.json:/usr/src/app/package.json
+      - ./Kiosk-Service/src:/usr/src/app/src
+      - ./Kiosk-Service/.env:/usr/src/app/.env
+      - ./Kiosk-Service/package.json:/usr/src/app/package.json
     command: yarn start:dev
     restart: always
