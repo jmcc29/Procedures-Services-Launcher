@@ -1,69 +1,69 @@
 services:
 
   nats-server:
-    build: ./microservice-gateway/nats
+    build: ./Gateway-Service/nats
     ports:
       - 4222:4222
     restart: always
 
-  microservice-gateway:
-    build: 
-      context: ./microservice-gateway
+  Gateway-Service:
+    build:
+      context: ./Gateway-Service
       dockerfile: dockerfile.prod
     env_file:
       - .env
-      - ./microservice-gateway/.env.compose
+      - ./Gateway-Service/.env.compose
     ports:
       - ${CLIENT_GATEWAY_PORT}:3000
     volumes:
-      - ./microservice-gateway/src:/usr/src/app/src
-      - ./microservice-gateway/package.json:/usr/src/app/package.json
+      - ./Gateway-Service/src:/usr/src/app/src
+      - ./Gateway-Service/package.json:/usr/src/app/package.json
     restart: always
 
-  beneficiary-microservice:
-    build: 
-      context: ./beneficiary-microservice
+  Beneficiary-Service:
+    build:
+      context: ./Beneficiary-Service
       dockerfile: dockerfile.prod
     env_file:
       - .env
-      - ./beneficiary-microservice/.env.compose
+      - ./Beneficiary-Service/.env.compose
     volumes:
-      - ./beneficiary-microservice/src:/usr/src/app/src
-      - ./beneficiary-microservice/package.json:/usr/src/app/package.json
+      - ./Beneficiary-Service/src:/usr/src/app/src
+      - ./Beneficiary-Service/package.json:/usr/src/app/package.json
     restart: always
 
-  general-microservice:
-    build: 
-      context: ./general-microservice
+  Global-Service:
+    build:
+      context: ./Global-Service
       dockerfile: dockerfile.prod
     env_file:
       - .env
-      - ./general-microservice/.env.compose
+      - ./Global-Service/.env.compose
     volumes:
-      - ./general-microservice/src:/usr/src/app/src
-      - ./general-microservice/package.json:/usr/src/app/package.json
+      - ./Global-Service/src:/usr/src/app/src
+      - ./Global-Service/package.json:/usr/src/app/package.json
     restart: always
 
-  auth-microservice:
-    build: 
-      context: ./auth-microservice
+  Auth-Service:
+    build:
+      context: ./Auth-Service
       dockerfile: dockerfile.prod
     env_file:
       - .env
-      - ./auth-microservice/.env.compose
+      - ./Auth-Service/.env.compose
     volumes:
-      - ./auth-microservice/src:/usr/src/app/src
-      - ./auth-microservice/package.json:/usr/src/app/package.json
+      - ./Auth-Service/src:/usr/src/app/src
+      - ./Auth-Service/package.json:/usr/src/app/package.json
     restart: always
 
-  kiosk-microservice:
-    build: 
-      context: ./kiosk-microservice
+  Kiosk-Service:
+    build:
+      context: ./Kiosk-Service
       dockerfile: dockerfile.prod
     env_file:
       - .env
-      - ./kiosk-microservice/.env.compose
+      - ./Kiosk-Service/.env.compose
     volumes:
-      - ./kiosk-microservice/src:/usr/src/app/src
-      - ./kiosk-microservice/package.json:/usr/src/app/package.json
+      - ./Kiosk-Service/src:/usr/src/app/src
+      - ./Kiosk-Service/package.json:/usr/src/app/package.json
     restart: always
