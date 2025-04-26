@@ -1,13 +1,13 @@
 services:
 
-  Nats-Server:
+  nats-server:
     build: ./Gateway-Service/nats
     ports:
       - 8222:8222
       - 4222:4222
     restart: always
 
-  Gateway-Service:
+  gateway-service:
     build: ./Gateway-Service
     ports:
       - ${CLIENT_GATEWAY_PORT}:3000
@@ -18,7 +18,7 @@ services:
     command: yarn start:dev
     restart: always
 
-  Beneficiary-Service:
+  beneficiary-service:
     build: ./Beneficiary-Service
     volumes:
       - ./Beneficiary-Service/src:/usr/src/app/src
@@ -27,7 +27,7 @@ services:
     command: yarn start:dev
     restart: always
 
-  Global-Service:
+  global-service:
     build: ./Global-Service
     volumes:
       - ./Global-Service/src:/usr/src/app/src
@@ -36,7 +36,7 @@ services:
     command: yarn start:dev
     restart: always
 
-  Auth-Service:
+  auth-service:
     build: ./Auth-Service
     volumes:
       - ./Auth-Service/src:/usr/src/app/src
@@ -45,7 +45,7 @@ services:
     command: yarn start:dev
     restart: always
 
-  Kiosk-Service:
+  kiosk-service:
     build: ./Kiosk-Service
     volumes:
       - ./Kiosk-Service/src:/usr/src/app/src
