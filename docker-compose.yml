@@ -9,47 +9,57 @@ services:
 
   gateway-service:
     build: ./Gateway-Service
+    env_file:
+      - .env
+      - ./Gateway-Service/.env.compose
     ports:
       - ${CLIENT_GATEWAY_PORT}:3000
     volumes:
       - ./Gateway-Service/src:/usr/src/app/src
-      - ./Gateway-Service/.env:/usr/src/app/.env 
       - ./Gateway-Service/package.json:/usr/src/app/package.json
     command: yarn start:dev
     restart: always
 
   beneficiary-service:
     build: ./Beneficiary-Service
+    env_file:
+      - .env
+      - ./Beneficiary-Service/.env.compose
     volumes:
       - ./Beneficiary-Service/src:/usr/src/app/src
-      - ./Beneficiary-Service/.env:/usr/src/app/.env
       - ./Beneficiary-Service/package.json:/usr/src/app/package.json
     command: yarn start:dev
     restart: always
 
   global-service:
     build: ./Global-Service
+    env_file:
+      - .env
+      - ./Global-Service/.env.compose
     volumes:
       - ./Global-Service/src:/usr/src/app/src
-      - ./Global-Service/.env:/usr/src/app/.env
       - ./Global-Service/package.json:/usr/src/app/package.json
     command: yarn start:dev
     restart: always
 
   auth-service:
     build: ./Auth-Service
+    env_file:
+      - .env
+      - ./Auth-Service/.env.compose
     volumes:
       - ./Auth-Service/src:/usr/src/app/src
-      - ./Auth-Service/.env:/usr/src/app/.env
       - ./Auth-Service/package.json:/usr/src/app/package.json
     command: yarn start:dev
     restart: always
 
   kiosk-service:
     build: ./Kiosk-Service
+    env_file:
+      - .env
+      - ./Kiosk-Service/.env.compose
     volumes:
       - ./Kiosk-Service/src:/usr/src/app/src
-      - ./Kiosk-Service/.env:/usr/src/app/.env
       - ./Kiosk-Service/package.json:/usr/src/app/package.json
     command: yarn start:dev
     restart: always
