@@ -1,6 +1,6 @@
-import { execSync } from 'child_process';
-import { readFileSync } from 'fs';
-import { createInterface } from 'readline';
+const { execSync } = require('child_process');
+const fs = require('fs');
+const readline = require('readline');
 
 function run(command) {
   try {
@@ -14,7 +14,7 @@ function run(command) {
 
 // Detecta nombres de submódulos desde .gitmodules
 function getSubmodules() {
-  const gitmodules = readFileSync('.gitmodules', 'utf-8');
+  const gitmodules = fs.readFileSync('.gitmodules', 'utf-8');
   const matches = [...gitmodules.matchAll(/path = ([^\n]+)/g)];
   return matches.map(m => m[1]);
 }
@@ -32,7 +32,7 @@ function askForSubmoduleChoice(submodules) {
     submodules.forEach((s, i) => console.log(`  ${i + 1}. ${s}`));
     console.log('  0. Todos');
 
-    const rl = createInterface({
+    const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
     });
