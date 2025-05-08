@@ -34,7 +34,6 @@ fi
 echo -e "\n🔄 Actualizando submódulos..."
 for sub in "${selected[@]}"; do
   echo "📦 $sub"
-  git submodule update --init --recursive "$sub"
   (cd "$sub" && git checkout main && git pull origin main)
 done
 
