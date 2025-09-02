@@ -67,3 +67,15 @@ services:
       - ./Kiosk-Service/src:/usr/src/app/src
       - ./Kiosk-Service/package.json:/usr/src/app/package.json
     restart: always
+
+  app-mobile-service:
+    build:
+      context: ./App-Mobile-Service
+      dockerfile: dockerfile.prod
+    env_file:
+      - .env
+      - ./App-Mobile-Service/.env.compose
+    volumes:
+      - ./App-Mobile-Service/src:/usr/src/app/src
+      - ./App-Mobile-Service/package.json:/usr/src/app/package.json
+    restart: always
