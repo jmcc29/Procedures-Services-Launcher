@@ -13,3 +13,6 @@
 [submodule "Kiosk-Service"]
 	path = Kiosk-Service
 	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/Kiosk-Service.git
+[submodule "App-Mobile-Service"]
+	path = App-Mobile-Service
+	url = https://github.com/MUTUAL-DE-SERVICIOS-AL-POLICIA/App-Mobile-Service.git
