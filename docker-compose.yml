@@ -1,5 +1,43 @@
 services:
+  # --- Base de datos para Keycloak ---
+  postgres:
+    image: postgres:17
+    container_name: keycloak-postgres
+    environment:
+      POSTGRES_DB: keycloak-bd
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    restart: always
 
+  # --- Keycloak ---
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.1
+    container_name: keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak-bd
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+      KC_DB_SCHEMA: keycloak
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_HOSTNAME: 192.168.2.5
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_BACKCHANNEL: "false"
+      KC_BOOTSTRAP_ADMIN_USER: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    command: start-dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./providers:/opt/keycloak/providers
+    depends_on:
+      - postgres
+    restart: always
   nats-server:
     build: ./Gateway-Service/nats
     ports:
@@ -63,3 +101,8 @@ services:
       - ./Kiosk-Service/package.json:/usr/src/app/package.json
     command: yarn start:dev
     restart: always
+
+volumes:
+  postgres_data:
+    external: true
+    name: keycloak_postgres_data 
