@@ -30,11 +30,16 @@ services:
       KC_HOSTNAME_STRICT_BACKCHANNEL: "false"
       KC_BOOTSTRAP_ADMIN_USER: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-    command: start-dev
+    command: 
+      - start-dev
+      - --spi-theme-static-max-age=-1
+      - --spi-theme-cache-themes=false
+      - --spi-theme-cache-templates=false
     ports:
       - "8080:8080"
     volumes:
       - ./providers:/opt/keycloak/providers
+      - ./themes:/opt/keycloak/themes
     depends_on:
       - postgres
     restart: always
