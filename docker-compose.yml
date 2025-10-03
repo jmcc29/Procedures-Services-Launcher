@@ -74,3 +74,13 @@ services:
       - /app/node_modules
     command: yarn start:dev
     restart: always
+  records-service-dev:
+    build: ./Records-Service
+    env_file:
+      - .env
+      - ./Records-Service/.env.compose
+    volumes:
+      - ./Records-Service:/app
+      - /app/node_modules
+    command: yarn start:dev
+    restart: always
