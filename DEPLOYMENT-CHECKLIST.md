@@ -1,0 +1,123 @@
+# Checklist para un ambiente de pruebas
+
+Este procedimiento prepara un ambiente nuevo sin importar datos ni modificar directamente el esquema de Keycloak.
+
+## 1. Versiones y submódulos
+
+1. Clonar ambos launchers.
+2. Inicializar submódulos con las revisiones registradas por cada launcher.
+3. Comprobar que cada submódulo está en la rama o commit aprobado.
+4. No usar `git submodule update --remote` durante un despliegue reproducible.
+
+## 2. Configuración
+
+### Backend
+
+1. Para desarrollo, copiar `.env.template` a `.env`.
+2. Para producción, copiar `.env.production.template` a `.env.production`.
+3. Copiar cada `.env.compose.template` necesaria a `.env.compose` y revisar sus integraciones para el ambiente; no reutilizar valores de desarrollo.
+4. Ejecutar Compose de producción siempre con `--env-file .env.production`.
+5. Definir PostgreSQL, NATS, Redis y Keycloak.
+6. En Auth-Service, definir OIDC, cliente Hub, catálogo y TTL.
+7. Mantener `DB_SYNCHRONIZE=false` en un ambiente compartido.
+8. Guardar secretos fuera de Git.
+
+### Frontend
+
+1. Para desarrollo, copiar `.env.example` a `.env`.
+2. Para producción, copiar `.env.production.template` a `.env.production`.
+3. Configurar Gateway, Hub público y los orígenes públicos de herramientas.
+4. Usar `AUTH_COOKIE_SECURE=false` solamente con HTTP de desarrollo.
+5. En HTTPS establecer `AUTH_COOKIE_SECURE=true`.
+6. Los `.env` de submódulos solo son necesarios para ejecución standalone.
+
+## 3. Base de datos
+
+- Crear o seleccionar las bases y schemas requeridos por los microservicios.
+- Ejecutar únicamente migraciones documentadas por cada servicio.
+- No ejecutar seeders sin revisar si son idempotentes y qué datos escriben.
+- No usar `synchronize=true` para preparar producción.
+- Keycloak administra exclusivamente su propio schema.
+- No ejecutar SQL, migraciones de aplicación ni seeders sobre el schema de Keycloak.
+
+## 4. Keycloak
+
+Seguir [KEYCLOAK-CONFIGURATION.md](./KEYCLOAK-CONFIGURATION.md).
+
+Antes de habilitar el flujo:
+
+- realm existente y habilitado;
+- federación LDAP verificada;
+- cliente `hub-interface`;
+- clientes de herramientas;
+- token exchange permitido;
+- redirect, post logout y backchannel exactos;
+- mappers de identidad, grupos y client roles;
+- Authorization Services y permisos acordados.
+
+Una importación completa de realm no es un mecanismo de actualización seguro para una base existente. Primero se valida y se prepara un plan; solo después se aplican cambios administrativos idempotentes.
+
+## 5. Validación de Compose
+
+Sin levantar servicios:
+
+```sh
+docker compose config --quiet
+docker compose --env-file .env.production -f docker-compose.prod.yml config --quiet
+```
+
+La segunda validación solo demuestra interpolación y sintaxis. No confirma que la topología de producción tenga Redis y Keycloak disponibles.
+
+## 6. Orden de arranque para pruebas
+
+1. PostgreSQL.
+2. NATS.
+3. Redis.
+4. Keycloak.
+5. Auth-Service.
+6. Gateway-Service.
+7. Microservicios funcionales necesarios.
+8. Hub.
+9. Interfaces de herramientas.
+
+Esperar que cada dependencia esté lista antes de iniciar pruebas funcionales. El orden no reemplaza health checks ni readiness en una plataforma de orquestación.
+
+## 7. Pruebas mínimas
+
+- login OIDC mediante code y state;
+- callback y creación de SID;
+- contexto del Hub;
+- tarjetas según `launch`;
+- lanzamiento de cada herramienta;
+- contexto y permisos de la herramienta;
+- una operación de lectura representativa;
+- una operación de escritura representativa cuando exista entorno aislado;
+- logout global;
+- backchannel logout;
+- refresh después de expirar el access token;
+- denegación después de revocar un permiso;
+- indisponibilidad temporal de Auth sin borrar cookies indebidamente.
+
+No registrar SID, tokens, secretos, cookies completas ni datos personales.
+
+## 8. Infraestructura incluida en producción
+
+El Compose backend de producción incluye Redis y Keycloak:
+
+- Redis usa un volumen persistente y no publica su puerto al host.
+- Keycloak permanece fijado en la versión declarada por Compose.
+- Keycloak escucha HTTP dentro del host y se publica en loopback para un proxy inverso.
+- `KC_HOSTNAME` debe ser la URL pública HTTPS exacta.
+- El proxy debe reemplazar los encabezados reenviados; `KC_PROXY_HEADERS=xforwarded` habilita su interpretación.
+- Los temas se montan en solo lectura.
+
+Antes del primer arranque:
+
+1. realizar respaldo verificable de la base y del schema de Keycloak;
+2. comprobar que la versión de la imagen coincide con la versión que creó o migró el schema;
+3. configurar el proxy TLS;
+4. cambiar las credenciales bootstrap;
+5. configurar respaldo del volumen `web-redis-data`;
+6. validar el Compose sin iniciarlo.
+
+El arranque normal de Keycloak puede ejecutar migraciones propias cuando cambia su versión. Por eso una actualización de imagen debe tratarse como una migración planificada y nunca como una recreación rutinaria.

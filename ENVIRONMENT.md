@@ -1,0 +1,91 @@
+# Configuración por ambiente
+
+Este documento define dónde vive cada variable. Los archivos `.env` y `.env.compose` reales no se versionan.
+
+## Fuentes de configuración
+
+| Archivo | Alcance | Contenido |
+| --- | --- | --- |
+| `.env` del launcher backend | Desarrollo compartido por Compose | PostgreSQL, NATS, ambiente, Redis y arranque de Keycloak |
+| `.env.production` del launcher backend | Producción compartida por Compose | Infraestructura y autenticación web productivas |
+| `<servicio>/.env.compose` | Un microservicio en Compose | Integraciones y configuración propia del servicio |
+| `<servicio>/.env` | Ejecución standalone | Equivalente local fuera de Compose |
+| `.env` del launcher frontend | Desarrollo compartido por Compose | Configuración común de las interfaces |
+| `.env.production` del launcher frontend | Producción compartida por Compose | Orígenes HTTPS, cookies y argumentos públicos de build |
+| `<interfaz>/.env` | Una interfaz | Gateway, origen público y clave de herramienta |
+
+Las plantillas correspondientes son la fuente versionada. Los secretos se suministran por el ambiente de despliegue.
+
+## Autenticación web
+
+### Launcher backend
+
+| Variable | Propietario | Secreta | Finalidad |
+| --- | --- | ---: | --- |
+| `WEB_AUTH_ENABLED` | Auth-Service | No | Activa SID/OIDC/UMA |
+| `ENVIRONMENT` | Servicios | No | Separa claves Redis y activa validaciones de producción |
+| `WEB_REDIS_PASSWORD` | Redis y Auth-Service | Sí | Autenticación de Redis |
+| `REDIS_PORT` | Compose | No | Puerto local expuesto en desarrollo |
+| `KC_*` | Keycloak | Algunas | Base de datos, hostname y bootstrap administrativo |
+
+`KC_BOOTSTRAP_ADMIN_USER` y `KC_BOOTSTRAP_ADMIN_PASSWORD` crean el administrador inicial cuando corresponde. No describen usuarios funcionales ni sustituyen la configuración del realm.
+
+### Auth-Service
+
+| Variable | Secreta | Regla |
+| --- | ---: | --- |
+| `OIDC_ISSUER` | No | Issuer público exacto del realm |
+| `OIDC_INTERNAL_BASE_URL` | No | Origen interno de Keycloak; no cambia el issuer esperado |
+| `OIDC_HUB_TOOL_KEY` | No | Clave interna del Hub, normalmente `hub` |
+| `OIDC_HUB_CLIENT_ID` | No | Cliente OIDC del Hub |
+| `OIDC_HUB_CLIENT_TYPE` | No | `public` o `confidential` |
+| `OIDC_HUB_CLIENT_SECRET` | Sí | Obligatoria solo para cliente confidential |
+| `OIDC_HUB_CALLBACK_URL` | No | URL exacta `<hub>/api/auth/callback` |
+| `OIDC_HUB_POST_LOGOUT_REDIRECT_URL` | No | URL pública del Hub tras logout |
+| `WEB_CLIENT_CATALOG` | No | Mapa tool → clientId; Auth deriva audience y resource server |
+| `WEB_REDIS_HOST`, `WEB_REDIS_PORT` | No | Conexión interna a Redis |
+| `WEB_REDIS_KEY_PREFIX` | No | Namespace de sesiones |
+| `WEB_*_TTL_SECONDS` | No | Límites de pending, sesión, idle y margen de refresh |
+
+Ejemplo sin secretos:
+
+```env
+OIDC_HUB_TOOL_KEY=hub
+OIDC_HUB_CLIENT_ID=hub-interface
+WEB_CLIENT_CATALOG={"beneficiary":{"clientId":"beneficiary-interface"},"sales":{"clientId":"sales-interface"},"collections":{"clientId":"collections-interface"}}
+```
+
+Agregar una herramienta exige agregar una entrada al catálogo y configurar el cliente correspondiente en Keycloak. La clave enviada por el frontend nunca puede elegir un clientId arbitrario.
+
+### Interfaces web
+
+Todas las interfaces SID usan:
+
+| Variable | Exposición | Finalidad |
+| --- | --- | --- |
+| `GATEWAY_INTERNAL_URL` | Solo servidor | Origen usado por el BFF para llamar al Gateway |
+| `HUB_PUBLIC_ORIGIN` | Solo servidor | Origen público permitido para volver al Hub |
+| `AUTH_TOOL_KEY` | Solo servidor | Clave del catálogo de Auth |
+| `AUTH_COOKIE_SECURE` | Solo servidor | Debe ser `true` con HTTPS en producción |
+| `AUTH_PENDING_TTL_SECONDS` | Solo servidor | Vigencia del binding OIDC del Hub |
+| `BENEFICIARY_PUBLIC_ORIGIN` | Solo servidor del Hub | Destino público de Beneficiary |
+| `SALES_PUBLIC_ORIGIN` | Solo servidor del Hub | Destino público de Sales |
+| `COLLECTIONS_PUBLIC_ORIGIN` | Solo servidor del Hub | Destino público de Collections |
+
+El endpoint de lanzamiento del Hub valida primero el acceso a la herramienta y luego usa el origen configurado. Los puertos y protocolos no están codificados en la aplicación.
+
+En el Compose de desarrollo del launcher frontend, `AUTH_TOOL_KEY` se fija por servicio y las variables compartidas se inyectan desde el `.env` raíz. Los `.env` de cada submódulo se reservan para ejecución standalone.
+
+Los valores `NEXT_PUBLIC_*` solo deben contener datos que puedan entregarse al navegador. No deben contener secretos, URLs internas ni credenciales.
+
+## Desarrollo y producción
+
+- El launcher backend usa `.env` para desarrollo y `.env.production` para producción.
+- El launcher frontend sigue la misma separación.
+- Los archivos productivos se crean desde `.env.production.template`, permanecen ignorados y se pasan mediante `docker compose --env-file .env.production`.
+- Los `.env.compose` contienen integraciones específicas del despliegue de cada microservicio; no se copian desde desarrollo sin revisión.
+- Desarrollo puede usar HTTP y nombres de servicio internos en `GATEWAY_INTERNAL_URL` y `OIDC_INTERNAL_BASE_URL`.
+- Producción requiere HTTPS en los orígenes públicos y `AUTH_COOKIE_SECURE=true`.
+- El issuer público debe coincidir exactamente con el `iss` de los tokens.
+- No se deben copiar direcciones particulares de desarrollo a las plantillas.
+- Los Compose de producción deben revisarse de forma separada antes del despliegue; no se asume que heredan automáticamente las variables nuevas del Compose de desarrollo.

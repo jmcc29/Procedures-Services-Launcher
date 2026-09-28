@@ -36,7 +36,13 @@ done
 
 7. Editar `.env` (raiz) y cada `.env.compose` (micro-service) con los valores reales del entorno.
 
-La documentacion de cada variable de entorno: [ENVDOC.md](./ENVDOC.md).
+Documentación de configuración:
+
+- [Matriz de variables por ambiente](./ENVIRONMENT.md)
+- [Configuración reproducible de Keycloak](./KEYCLOAK-CONFIGURATION.md)
+- [Checklist para un ambiente de pruebas](./DEPLOYMENT-CHECKLIST.md)
+- [Autenticación web y sesiones](./WEB-AUTHENTICATION.md)
+- [Variables históricas de los microservicios](./ENVDOC.md)
 
 ### Ejecutar el comando para construir las imagenes y correr la aplicacion
 
@@ -48,8 +54,23 @@ docker compose build --no-cache && docker compose up
 
 #### Producción (PROD)
 
+Crear y completar la configuración productiva central:
+
 ```sh
-docker compose -f docker-compose.prod.yml build --no-cache && docker compose -f docker-compose.prod.yml up -d
+cp .env.production.template .env.production
+```
+
+Los `.env.compose` de cada servicio deben contener sus integraciones productivas. Validar antes de construir:
+
+```sh
+docker compose --env-file .env.production -f docker-compose.prod.yml config --quiet
+```
+
+Construir y levantar:
+
+```sh
+docker compose --env-file .env.production -f docker-compose.prod.yml build --no-cache
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d
 ```
 
 ## RECREAR CONTENEDORES
@@ -61,7 +82,7 @@ docker compose -f docker-compose.prod.yml build --no-cache && docker compose -f 
 docker compose up -d --force-recreate
 
 # PRODUCCION (PROD)
-docker compose -f docker-compose.prod.yml up -d --force-recreate
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --force-recreate
 ```
 
 #### RECONSTRUIR UN CONTENEDOR ESPECIFICO
@@ -72,7 +93,7 @@ Si cambias el `.env.compose` de un solo servicio, recréalo de forma puntual des
 docker compose up <nombre-servicio> -d --force-recreate
 
 # PRODUCCION (PROD)
-docker compose -f docker-compose.prod.yml up <nombre-servicio> -d --force-recreate
+docker compose --env-file .env.production -f docker-compose.prod.yml up <nombre-servicio> -d --force-recreate
 ```
 
 Reemplaza `gateway-service-dev` o `gateway-service` por el servicio que corresponda.
