@@ -21,6 +21,7 @@ services:
     image: quay.io/keycloak/keycloak:26.0.1
     command: ["start-dev"]
     environment:
+      KC_FEATURES: token-exchange:v1,admin-fine-grained-authz:v1
       KC_DB: ${KC_DB:-postgres}
       KC_DB_URL_HOST: ${KC_DB_URL_HOST:?Set KC_DB_URL_HOST in the parent .env}
       KC_DB_URL_PORT: ${KC_DB_URL_PORT:-5432}
@@ -32,6 +33,8 @@ services:
       KC_HOSTNAME: ${KC_HOSTNAME:?Set KC_HOSTNAME to the public Keycloak URL}
       KC_BOOTSTRAP_ADMIN_USER: ${KC_BOOTSTRAP_ADMIN_USER:?Set KC_BOOTSTRAP_ADMIN_USER in the parent .env}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:?Set KC_BOOTSTRAP_ADMIN_PASSWORD in the parent .env}
+    volumes:
+      - ./Keycloak/themes:/opt/keycloak/themes:ro
     ports:
       - "${KEYCLOAK_PORT:-8080}:8080"
     restart: unless-stopped
