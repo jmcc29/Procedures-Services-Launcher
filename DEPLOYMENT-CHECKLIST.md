@@ -1,6 +1,6 @@
 # Checklist para un ambiente de pruebas
 
-Este procedimiento prepara un ambiente nuevo sin importar datos ni modificar directamente el esquema de Keycloak.
+Este procedimiento prepara un ambiente nuevo. Cuando se necesite conservar la configuración ya validada de Keycloak, permite restaurar una copia controlada de su esquema únicamente sobre un destino vacío.
 
 ## 1. Versiones y submódulos
 
@@ -34,11 +34,13 @@ Este procedimiento prepara un ambiente nuevo sin importar datos ni modificar dir
 ## 3. Base de datos
 
 - Crear o seleccionar las bases y schemas requeridos por los microservicios.
-- Ejecutar únicamente migraciones documentadas por cada servicio.
+- Ejecutar `migration:show` en Beneficiary-Service, Sales-Service y Collections-Service para identificar el estado real de cada esquema.
+- Ejecutar únicamente las migraciones pendientes y documentadas por cada servicio.
 - No ejecutar seeders sin revisar si son idempotentes y qué datos escriben.
 - No usar `synchronize=true` para preparar producción.
 - Keycloak administra exclusivamente su propio schema.
-- No ejecutar SQL, migraciones de aplicación ni seeders sobre el schema de Keycloak.
+- No ejecutar migraciones de aplicación ni seeders sobre el schema de Keycloak.
+- Una restauración inicial del schema Keycloak solo se realiza sobre un destino vacío y siguiendo [KEYCLOAK-CONFIGURATION.md](./KEYCLOAK-CONFIGURATION.md).
 
 ## 4. Keycloak
 
@@ -56,6 +58,15 @@ Antes de habilitar el flujo:
 - Authorization Services y permisos acordados.
 
 Una importación completa de realm no es un mecanismo de actualización seguro para una base existente. Primero se valida y se prepara un plan; solo después se aplican cambios administrativos idempotentes.
+
+Si el ambiente se inicializa desde un dump del schema Keycloak:
+
+- usar la misma versión de imagen en origen y destino;
+- proteger y eliminar de forma segura el archivo temporal después de verificar la restauración;
+- cambiar las URL que dependan del host del ambiente;
+- revisar LDAP y rotar credenciales o secretos propios del ambiente;
+- cerrar las sesiones heredadas antes de iniciar las pruebas;
+- ejecutar `node Keycloak/scripts/validate-local-web-auth.mjs`, o el validador principal si Hub y Gateway tienen hosts diferentes.
 
 ## 5. Validación de Compose
 
