@@ -43,7 +43,7 @@ Configuración mínima:
 - tipo public o confidential igual a `OIDC_HUB_CLIENT_TYPE`;
 - redirect URI exacta igual a `OIDC_HUB_CALLBACK_URL`;
 - post logout redirect URI exacta igual a `OIDC_HUB_POST_LOGOUT_REDIRECT_URL`;
-- web origin limitado al origen público del Hub;
+- Web Origins vacío o restringido, sin comodines; el BFF no usa llamadas OIDC desde JavaScript;
 - Backchannel Logout URL: `<gateway-public-origin>/api/auth/backchannel-logout`;
 - Backchannel Logout Session Required habilitado;
 - Frontchannel Logout no sustituye el backchannel.
@@ -110,7 +110,7 @@ El estado estructural esperado está en:
 Keycloak/config/web-auth.expected.json
 ```
 
-El validador consulta el realm, la presencia de una federación LDAP habilitada, los clientes, el rol base `user` de cada herramienta y los recursos `launch`. En el Hub también comprueba el tipo public/confidential, Standard Flow, Direct Access Grants deshabilitado, web origin, callback y logout. No crea, actualiza ni elimina configuración. El único `POST` que realiza es el intercambio estándar de credenciales administrativas por un token temporal; todas las llamadas administrativas son `GET`.
+El validador consulta el realm, la presencia de una federación LDAP habilitada, los clientes, el rol base `user` de cada herramienta y los recursos `launch`. En el Hub también comprueba el tipo public/confidential, Standard Flow, Direct Access Grants deshabilitado, ausencia de comodines en Web Origins, callback y logout. No crea, actualiza ni elimina configuración. El único `POST` que realiza es el intercambio estándar de credenciales administrativas por un token temporal; todas las llamadas administrativas son `GET`.
 
 Variables requeridas:
 
@@ -126,11 +126,19 @@ KEYCLOAK_BACKCHANNEL_LOGOUT_URL=https://gateway.example.test/api/auth/backchanne
 
 También puede proporcionarse un `KEYCLOAK_ADMIN_TOKEN` temporal en lugar de usuario y contraseña.
 
-Ejecución explícita:
+Ejecución explícita con variables administradas por el entorno:
 
 ```sh
 node Keycloak/scripts/validate-web-auth.mjs
 ```
+
+Para el ambiente local del launcher existe un wrapper que lee `.env` y `Auth-Service/.env.compose` sin imprimir sus valores y deriva el backchannel usando el host del callback y `CLIENT_GATEWAY_PORT`:
+
+```sh
+node Keycloak/scripts/validate-local-web-auth.mjs
+```
+
+Este wrapper es apropiado cuando Hub y Gateway comparten host y se diferencian por puerto. En un ambiente con dominios diferentes debe usarse el validador principal y suministrar explícitamente `KEYCLOAK_BACKCHANNEL_LOGOUT_URL`.
 
 El comando no se ejecuta durante el arranque de Compose. No imprime tokens, secretos, UUID de clientes ni respuestas administrativas completas.
 

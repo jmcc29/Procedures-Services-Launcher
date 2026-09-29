@@ -145,22 +145,37 @@ async function main() {
       if (client.publicClient !== (clientType === "public")) {
         problems.push("hub-interface has an unexpected client type");
       }
-      const callbackOrigin = new URL(callback).origin;
+      const webOrigins = Array.isArray(client.webOrigins)
+        ? client.webOrigins
+        : [];
       if (
-        !Array.isArray(client.webOrigins) ||
-        !client.webOrigins.includes(callbackOrigin)
+        webOrigins.includes("*") ||
+        webOrigins.some(
+          (entry) => typeof entry === "string" && entry.includes("*"),
+        )
       ) {
-        problems.push("hub-interface is missing its exact web origin");
+        problems.push("hub-interface web origins must not contain wildcards");
       }
       if (!Array.isArray(client.redirectUris) || !client.redirectUris.includes(callback)) {
         problems.push("hub-interface is missing the exact callback URI");
       }
-      if (
-        !splitPostLogoutUris(client.attributes?.["post.logout.redirect.uris"]).includes(
-          postLogout,
-        )
-      ) {
-        problems.push("hub-interface is missing the exact post logout redirect URI");
+      const postLogoutUris = splitPostLogoutUris(
+        client.attributes?.["post.logout.redirect.uris"],
+      );
+      if (!postLogoutUris.includes(postLogout)) {
+        const mode = postLogoutUris.includes("+")
+          ? "derived (+)"
+          : postLogoutUris.includes("*") ||
+              postLogoutUris.some(
+                (entry) => typeof entry === "string" && entry.includes("*"),
+              )
+            ? "wildcard"
+            : postLogoutUris.length
+              ? "different"
+              : "empty";
+        problems.push(
+          `hub-interface is missing the exact post logout redirect URI; configured mode: ${mode}`,
+        );
       }
       if (client.attributes?.["backchannel.logout.url"] !== backchannel) {
         problems.push("hub-interface has an unexpected backchannel logout URL");
