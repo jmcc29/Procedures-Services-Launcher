@@ -6,8 +6,8 @@ Este documento define dónde vive cada variable. Los archivos `.env` y `.env.com
 
 | Archivo | Alcance | Contenido |
 | --- | --- | --- |
-| `.env` del launcher backend | Desarrollo compartido por Compose | PostgreSQL, NATS, ambiente, Redis y arranque de Keycloak |
-| `.env.production` del launcher backend | Producción compartida por Compose | Infraestructura y autenticación web productivas |
+| `.env` del launcher backend | Desarrollo compartido por Compose | PostgreSQL, NATS, ambiente y puertos publicados |
+| `.env.production` del launcher backend | Producción compartida por Compose | Infraestructura compartida y puertos productivos |
 | `<servicio>/.env.compose` | Un microservicio en Compose | Integraciones y configuración propia del servicio |
 | `<servicio>/.env` | Ejecución standalone | Equivalente local fuera de Compose |
 | `.env` del launcher frontend | Desarrollo compartido por Compose | Configuración común de las interfaces |
@@ -24,11 +24,10 @@ Las plantillas correspondientes son la fuente versionada. Los secretos se sumini
 | --- | --- | ---: | --- |
 | `WEB_AUTH_ENABLED` | Auth-Service | No | Activa SID/OIDC/UMA |
 | `ENVIRONMENT` | Servicios | No | Separa claves Redis y activa validaciones de producción |
-| `WEB_REDIS_PASSWORD` | Redis y Auth-Service | Sí | Autenticación de Redis |
 | `REDIS_PORT` | Compose | No | Puerto local expuesto en desarrollo |
-| `KC_*` | Keycloak | Algunas | Base de datos, hostname y bootstrap administrativo |
+| `KEYCLOAK_PORT`, `KEYCLOAK_BIND_ADDRESS` | Compose | No | Publicación controlada de Keycloak |
 
-`KC_BOOTSTRAP_ADMIN_USER` y `KC_BOOTSTRAP_ADMIN_PASSWORD` crean el administrador inicial cuando corresponde. No describen usuarios funcionales ni sustituyen la configuración del realm.
+`WEB_REDIS_PASSWORD` y las variables dinámicas `KC_*` viven en `Auth-Service/.env.compose`. Redis, Keycloak y Auth-Service reciben ese archivo dentro del mismo límite de infraestructura de autenticación. `KC_BOOTSTRAP_ADMIN_USER` y `KC_BOOTSTRAP_ADMIN_PASSWORD` crean el administrador inicial cuando corresponde. No describen usuarios funcionales ni sustituyen la configuración del realm.
 
 ### Auth-Service
 
@@ -44,6 +43,8 @@ Las plantillas correspondientes son la fuente versionada. Los secretos se sumini
 | `OIDC_HUB_POST_LOGOUT_REDIRECT_URL` | No | URL pública del Hub tras logout |
 | `WEB_CLIENT_CATALOG` | No | Mapa tool → clientId; Auth deriva audience y resource server |
 | `WEB_REDIS_HOST`, `WEB_REDIS_PORT` | No | Conexión interna a Redis |
+| `WEB_REDIS_PASSWORD` | Sí | Contraseña compartida con el contenedor Redis |
+| `KC_*` | Algunas | Base, hostname, proxy y bootstrap de Keycloak |
 | `WEB_REDIS_KEY_PREFIX` | No | Namespace de sesiones |
 | `WEB_*_TTL_SECONDS` | No | Límites de pending, sesión, idle y margen de refresh |
 

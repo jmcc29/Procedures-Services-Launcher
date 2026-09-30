@@ -1,40 +1,25 @@
 services:
 
   redis:
-    image: redis:7-alpine
-    environment:
-      REDIS_PASSWORD: ${WEB_REDIS_PASSWORD:?Set WEB_REDIS_PASSWORD in the parent .env}
-      REDISCLI_AUTH: ${WEB_REDIS_PASSWORD:?Set WEB_REDIS_PASSWORD in the parent .env}
-    command: ["sh", "-c", "exec redis-server --appendonly yes --requirepass \"$$REDIS_PASSWORD\""]
+    build: ./Auth-Service/redis
+    env_file:
+      - ./Auth-Service/.env.compose
     ports:
       - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     volumes:
       - web-redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD-SHELL', 'REDISCLI_AUTH="$$WEB_REDIS_PASSWORD" redis-cli ping']
       interval: 10s
       timeout: 3s
       retries: 3
     restart: unless-stopped
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0.1
+    build: ./Auth-Service/keycloak
     command: ["start-dev"]
-    environment:
-      KC_FEATURES: token-exchange:v1,admin-fine-grained-authz:v1
-      KC_DB: ${KC_DB:-postgres}
-      KC_DB_URL_HOST: ${KC_DB_URL_HOST:?Set KC_DB_URL_HOST in the parent .env}
-      KC_DB_URL_PORT: ${KC_DB_URL_PORT:-5432}
-      KC_DB_URL_DATABASE: ${KC_DB_URL_DATABASE:?Set KC_DB_URL_DATABASE in the parent .env}
-      KC_DB_SCHEMA: ${KC_DB_SCHEMA:-keycloak}
-      KC_DB_USERNAME: ${KC_DB_USERNAME:?Set KC_DB_USERNAME in the parent .env}
-      KC_DB_PASSWORD: ${KC_DB_PASSWORD:?Set KC_DB_PASSWORD in the parent .env}
-      KC_HEALTH_ENABLED: ${KC_HEALTH_ENABLED:-true}
-      KC_HOSTNAME: ${KC_HOSTNAME:?Set KC_HOSTNAME to the public Keycloak URL}
-      KC_BOOTSTRAP_ADMIN_USER: ${KC_BOOTSTRAP_ADMIN_USER:?Set KC_BOOTSTRAP_ADMIN_USER in the parent .env}
-      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:?Set KC_BOOTSTRAP_ADMIN_PASSWORD in the parent .env}
-    volumes:
-      - ./Keycloak/themes:/opt/keycloak/themes:ro
+    env_file:
+      - ./Auth-Service/.env.compose
     ports:
       - "${KEYCLOAK_PORT:-8080}:8080"
     restart: unless-stopped

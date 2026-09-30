@@ -1,39 +1,18 @@
 services:
 
   redis:
-    image: redis:7-alpine
-    environment:
-      REDIS_PASSWORD: ${WEB_REDIS_PASSWORD:?Set WEB_REDIS_PASSWORD in the parent .env}
-      REDISCLI_AUTH: ${WEB_REDIS_PASSWORD:?Set WEB_REDIS_PASSWORD in the parent .env}
-    command:
-      - sh
-      - -c
-      - exec redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"
+    build: ./Auth-Service/redis
+    env_file:
+      - ./Auth-Service/.env.compose
     volumes:
       - web-redis-data:/data
     restart: unless-stopped
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0.1
-    command: ["start"]
-    environment:
-      KC_FEATURES: token-exchange:v1,admin-fine-grained-authz:v1
-      KC_DB: ${KC_DB:-postgres}
-      KC_DB_URL_HOST: ${KC_DB_URL_HOST:?Set KC_DB_URL_HOST in the parent .env}
-      KC_DB_URL_PORT: ${KC_DB_URL_PORT:-5432}
-      KC_DB_URL_DATABASE: ${KC_DB_URL_DATABASE:?Set KC_DB_URL_DATABASE in the parent .env}
-      KC_DB_SCHEMA: ${KC_DB_SCHEMA:-keycloak}
-      KC_DB_USERNAME: ${KC_DB_USERNAME:?Set KC_DB_USERNAME in the parent .env}
-      KC_DB_PASSWORD: ${KC_DB_PASSWORD:?Set KC_DB_PASSWORD in the parent .env}
-      KC_HEALTH_ENABLED: ${KC_HEALTH_ENABLED:-true}
-      KC_HTTP_ENABLED: ${KC_HTTP_ENABLED:-true}
-      KC_PROXY_HEADERS: ${KC_PROXY_HEADERS:-xforwarded}
-      KC_HOSTNAME: ${KC_HOSTNAME:?Set KC_HOSTNAME to the public HTTPS Keycloak URL}
-      KC_HOSTNAME_STRICT: ${KC_HOSTNAME_STRICT:-true}
-      KC_BOOTSTRAP_ADMIN_USER: ${KC_BOOTSTRAP_ADMIN_USER:?Set KC_BOOTSTRAP_ADMIN_USER in the parent .env}
-      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:?Set KC_BOOTSTRAP_ADMIN_PASSWORD in the parent .env}
-    volumes:
-      - ./Keycloak/themes:/opt/keycloak/themes:ro
+    build: ./Auth-Service/keycloak
+    command: ["start", "--http-enabled=true", "--proxy-headers=xforwarded", "--hostname-strict=true"]
+    env_file:
+      - ./Auth-Service/.env.compose
     ports:
       - "${KEYCLOAK_BIND_ADDRESS:-127.0.0.1}:${KEYCLOAK_PORT:-8080}:8080"
     restart: unless-stopped

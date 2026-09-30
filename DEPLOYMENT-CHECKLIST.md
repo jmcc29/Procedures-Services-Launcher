@@ -66,7 +66,7 @@ Si el ambiente se inicializa desde un dump del schema Keycloak:
 - cambiar las URL que dependan del host del ambiente;
 - revisar LDAP y rotar credenciales o secretos propios del ambiente;
 - cerrar las sesiones heredadas antes de iniciar las pruebas;
-- ejecutar `node Keycloak/scripts/validate-local-web-auth.mjs`, o el validador principal si Hub y Gateway tienen hosts diferentes.
+- ejecutar `node Auth-Service/keycloak/scripts/validate-local-web-auth.mjs`, o el validador principal si Hub y Gateway tienen hosts diferentes.
 
 ## 5. Validación de Compose
 
@@ -120,7 +120,7 @@ El Compose backend de producción incluye Redis y Keycloak:
 - Keycloak escucha HTTP dentro del host y se publica en loopback para un proxy inverso.
 - `KC_HOSTNAME` debe ser la URL pública HTTPS exacta.
 - El proxy debe reemplazar los encabezados reenviados; `KC_PROXY_HEADERS=xforwarded` habilita su interpretación.
-- Los temas se montan en solo lectura.
+- Los temas se incorporan a la imagen construida desde `Auth-Service/keycloak`.
 
 Antes del primer arranque:
 

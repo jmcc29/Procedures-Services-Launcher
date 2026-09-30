@@ -152,7 +152,7 @@ No se imprimen tokens, SID, secretos, cookies completas ni datos personales dura
 El estado estructural esperado está en:
 
 ```text
-Keycloak/config/web-auth.expected.json
+Auth-Service/keycloak/config/web-auth.expected.json
 ```
 
 El validador consulta el realm, la presencia de una federación LDAP habilitada, los clientes, el rol base `user` de cada herramienta y los recursos `launch`. En el Hub también comprueba el tipo public/confidential, Standard Flow, Direct Access Grants deshabilitado, ausencia de comodines en Web Origins, callback y logout. No crea, actualiza ni elimina configuración. El único `POST` que realiza es el intercambio estándar de credenciales administrativas por un token temporal; todas las llamadas administrativas son `GET`.
@@ -174,13 +174,13 @@ También puede proporcionarse un `KEYCLOAK_ADMIN_TOKEN` temporal en lugar de usu
 Ejecución explícita con variables administradas por el entorno:
 
 ```sh
-node Keycloak/scripts/validate-web-auth.mjs
+node Auth-Service/keycloak/scripts/validate-web-auth.mjs
 ```
 
 Para el ambiente local del launcher existe un wrapper que lee `.env` y `Auth-Service/.env.compose` sin imprimir sus valores y deriva el backchannel usando el host del callback y `CLIENT_GATEWAY_PORT`:
 
 ```sh
-node Keycloak/scripts/validate-local-web-auth.mjs
+node Auth-Service/keycloak/scripts/validate-local-web-auth.mjs
 ```
 
 Este wrapper es apropiado cuando Hub y Gateway comparten host y se diferencian por puerto. En un ambiente con dominios diferentes debe usarse el validador principal y suministrar explícitamente `KEYCLOAK_BACKCHANNEL_LOGOUT_URL`.
