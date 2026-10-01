@@ -16,7 +16,7 @@ Este documento describe la sesion OIDC del Hub, la sesion web local y la configu
 
 ## 2. Valores recomendados
 
-La configuracion actual usa estos valores base:
+Auth-Service usa estos defaults internos cuando las variables no existen:
 
 ```env
 WEB_SESSION_TTL_SECONDS=28800
@@ -72,7 +72,7 @@ Esto evita que un desfase de reloj o de red corte la sesion antes de que Auth-Se
 Configurar:
 
 - **Client type**: `OpenID Connect`.
-- **Client authentication**: `On` si `OIDC_HUB_CLIENT_TYPE=confidential`.
+- **Client authentication**: `On`; `hub-interface` es siempre confidencial.
 - **Standard flow**: habilitado.
 - **Direct access grants**: deshabilitado salvo que exista un caso explicito.
 - **Valid redirect URIs**: debe coincidir exactamente con `OIDC_HUB_CALLBACK_URL`, por ejemplo:
@@ -89,6 +89,12 @@ Configurar:
   ```
 
 - Mantener el secreto del cliente solamente en el entorno del servidor. No exponerlo en Login Hub ni en el navegador.
+
+## Callback OIDC iniciado hace demasiado tiempo
+
+La cookie HttpOnly `oidc_binding` y el estado pendiente tienen una vida limitada. Keycloak puede crear su sesion SSO y devolver un `code` despues de que esa vinculacion haya expirado. En ese caso el Hub no canjea el codigo, porque ya no puede demostrar que el navegador inicio ese flujo ni recuperar PKCE de forma segura.
+
+Cuando el callback contiene exactamente un `code` y un `state`, pero falta `oidc_binding` o Auth-Service responde `LOGIN_STATE_INVALID`, el Hub inicia automaticamente un unico flujo nuevo hacia `/apphub`. Keycloak puede reutilizar su sesion SSO y completar el segundo flujo sin pedir credenciales nuevamente. Una cookie HttpOnly de recuperacion, limitada a 120 segundos y a `/api/auth`, impide ciclos: si el segundo callback vuelve a llegar sin vinculacion, el proceso falla cerrado y presenta el error. La cookie se elimina al completar el login o mostrar el error.
 
 ## 4. Que ocurre al expirar cada parte
 
@@ -213,17 +219,14 @@ En `Auth-Service/.env.compose` y en su plantilla deben existir:
 ```env
 OIDC_ISSUER=http://keycloak:8080/realms/muserpol
 OIDC_INTERNAL_BASE_URL=http://keycloak:8080
-OIDC_HUB_CLIENT_ID=hub-interface
-OIDC_HUB_CLIENT_TYPE=confidential
-OIDC_HUB_CALLBACK_URL=http://192.168.2.241:3001/api/auth/callback
-OIDC_HUB_POST_LOGOUT_REDIRECT_URL=http://192.168.2.241:3001/
-WEB_PENDING_TTL_SECONDS=600
-WEB_SESSION_TTL_SECONDS=28800
-WEB_SESSION_IDLE_TTL_SECONDS=7200
-WEB_REFRESH_SKEW_SECONDS=120
+OIDC_HUB_CLIENT_SECRET=<secreto>
+OIDC_HUB_CALLBACK_URL=http://HOST:3001/api/auth/callback
+OIDC_HUB_POST_LOGOUT_REDIRECT_URL=http://HOST:3001/
 ```
 
 En produccion, cambiar todas las URLs publicas a HTTPS y establecer `AUTH_COOKIE_SECURE=true` en Login Hub y Beneficiary Interface.
+
+Los defaults opcionales son `hub`, `hub-interface`, `redis:6379`, `muserpol-web`, pending de 600 segundos, sesion absoluta de 28800 segundos, idle de 7200 segundos y margen de refresh de 120 segundos. Para cambiar uno se agrega su variable documentada a `Auth-Service/.env.compose` y se recrea Auth-Service. Cambiar host, puerto o prefijo de Redis durante sesiones activas puede hacer inaccesibles las sesiones existentes; debe planificarse como una invalidacion de sesiones. Reducir TTL afecta las siguientes escrituras y renovaciones de sesion.
 
 ## 8. Verificacion operativa
 

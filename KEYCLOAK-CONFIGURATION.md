@@ -28,6 +28,8 @@ El launcher ejecuta Keycloak con `start`, no con `start-dev`. El puerto del cont
 
 Cambiar la versión de la imagen puede migrar el schema de Keycloak. Antes de actualizarla se necesita respaldo y un plan de reversión probado.
 
+Keycloak usa por defecto PostgreSQL en el puerto `5432` y el schema `keycloak`, definidos en `Auth-Service/keycloak/keycloak.conf`. `KC_DB_URL_PORT` y `KC_DB_SCHEMA` pueden añadirse a `Auth-Service/.env.compose` para sobrescribirlos. El cambio solo afecta la conexión del siguiente arranque: no crea, copia ni migra los datos del schema anterior.
+
 ## Traslado inicial a un ambiente de pruebas
 
 Mientras no exista un aprovisionador administrativo versionado, se puede trasladar el esquema completo de una instancia Keycloak ya validada hacia una base vacía de pruebas. Este procedimiento sirve para inicializar el ambiente; no debe usarse para actualizar o combinar dos instalaciones existentes.
@@ -85,7 +87,7 @@ Configuración mínima:
 
 - protocolo OpenID Connect;
 - Standard Flow habilitado;
-- tipo public o confidential igual a `OIDC_HUB_CLIENT_TYPE`;
+- cliente confidencial con **Client authentication** habilitado;
 - redirect URI exacta igual a `OIDC_HUB_CALLBACK_URL`;
 - post logout redirect URI exacta igual a `OIDC_HUB_POST_LOGOUT_REDIRECT_URL`;
 - Web Origins vacío o restringido, sin comodines; el BFF no usa llamadas OIDC desde JavaScript;
@@ -108,11 +110,11 @@ Los valores reales deben usar el host visible por el navegador y, para backchann
 
 Cada herramienta del `WEB_CLIENT_CATALOG` tiene su propio cliente y Authorization Services:
 
-| Tool key | Client ID / audience / resource server |
-| --- | --- |
-| `beneficiary` | `beneficiary-interface` |
-| `sales` | `sales-interface` |
-| `collections` | `collections-interface` |
+| Tool key      | Client ID / audience / resource server |
+| ------------- | -------------------------------------- |
+| `beneficiary` | `beneficiary-interface`                |
+| `sales`       | `sales-interface`                      |
+| `collections` | `collections-interface`                |
 
 Auth-Service deriva audience y resource server del `clientId`; no se repiten en la variable.
 
