@@ -13,10 +13,10 @@ Este procedimiento prepara un ambiente nuevo. Cuando se necesite conservar la co
 
 ### Backend
 
-1. Para desarrollo, copiar `.env.template` a `.env`.
-2. Para producción, copiar `.env.production.template` a `.env.production`.
+1. Copiar `.env.template` a `.env` y completarlo para el ambiente.
+2. En producción establecer `ENVIRONMENT=prod` y revisar todos los valores compartidos.
 3. Copiar cada `.env.compose.template` necesaria a `.env.compose` y revisar sus integraciones para el ambiente; no reutilizar valores de desarrollo.
-4. Ejecutar Compose de producción siempre con `--env-file .env.production`.
+4. El Compose carga `.env` primero y luego el `.env.compose` específico de cada servicio.
 5. Definir PostgreSQL, NATS, Redis y Keycloak.
 6. En Auth-Service, definir OIDC, cliente Hub, catálogo y TTL.
 7. Mantener `DB_SYNCHRONIZE=false` en un ambiente compartido.
@@ -24,10 +24,10 @@ Este procedimiento prepara un ambiente nuevo. Cuando se necesite conservar la co
 
 ### Frontend
 
-1. Para desarrollo, copiar `.env.example` a `.env`.
-2. Para producción, copiar `.env.production.template` a `.env.production`.
+1. Copiar la plantilla del launcher frontend a `.env` y completarla para el ambiente.
+2. En producción establecer los hosts, puertos y orígenes públicos reales en ese mismo `.env`.
 3. Configurar Gateway, Hub público y los orígenes públicos de herramientas.
-4. Usar `AUTH_COOKIE_SECURE=false` solamente con HTTP de desarrollo.
+4. En un despliegue HTTP establecer `AUTH_COOKIE_SECURE=false`; la cookie no queda protegida frente a captura dentro de la red.
 5. En HTTPS establecer `AUTH_COOKIE_SECURE=true`.
 6. Los `.env` de submódulos solo son necesarios para ejecución standalone.
 
@@ -74,7 +74,7 @@ Sin levantar servicios:
 
 ```sh
 docker compose config --quiet
-docker compose --env-file .env.production -f docker-compose.prod.yml config --quiet
+docker compose -f docker-compose.prod.yml config --quiet
 ```
 
 La segunda validación solo demuestra interpolación y sintaxis. No confirma que la topología de producción tenga Redis y Keycloak disponibles.
@@ -117,8 +117,8 @@ El Compose backend de producción incluye Redis y Keycloak:
 
 - Redis usa un volumen persistente y no publica su puerto al host.
 - Keycloak permanece fijado en la versión declarada por Compose.
-- Keycloak escucha HTTP dentro del host y se publica en loopback para un proxy inverso.
-- `KC_HOSTNAME` debe ser la URL pública HTTPS exacta.
+- Keycloak escucha HTTP. Con proxy inverso se publica en loopback; para acceso HTTP directo por intranet se configura `KEYCLOAK_BIND_ADDRESS=0.0.0.0`.
+- `KC_HOSTNAME` debe ser la URL pública exacta, incluido `http://` o `https://` y el puerto cuando corresponda.
 - El proxy debe reemplazar los encabezados reenviados; `KC_PROXY_HEADERS=xforwarded` habilita su interpretación.
 - Los temas se incorporan a la imagen construida desde `Auth-Service/keycloak`.
 
@@ -126,7 +126,7 @@ Antes del primer arranque:
 
 1. realizar respaldo verificable de la base y del schema de Keycloak;
 2. comprobar que la versión de la imagen coincide con la versión que creó o migró el schema;
-3. configurar el proxy TLS;
+3. configurar el proxy TLS o documentar la aceptación del riesgo si el acceso será HTTP directo;
 4. cambiar las credenciales bootstrap;
 5. configurar respaldo del volumen `web-redis-data`;
 6. validar el Compose sin iniciarlo.

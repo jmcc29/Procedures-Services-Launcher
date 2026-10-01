@@ -54,23 +54,23 @@ docker compose build --no-cache && docker compose up
 
 #### Producción (PROD)
 
-Crear y completar la configuración productiva central:
+El Compose de producción usa el mismo `.env` raíz como configuración compartida. Créalo desde la plantilla y reemplaza todos los ejemplos por valores del ambiente:
 
 ```sh
-cp .env.production.template .env.production
+cp .env.template .env
 ```
 
-Los `.env.compose` de cada servicio deben contener sus integraciones productivas. Validar antes de construir:
+Establece `ENVIRONMENT=prod`, `WEB_AUTH_ENABLED=true` y configura los `.env.compose` de cada servicio con sus integraciones productivas. Validar antes de construir:
 
 ```sh
-docker compose --env-file .env.production -f docker-compose.prod.yml config --quiet
+docker compose -f docker-compose.prod.yml config --quiet
 ```
 
 Construir y levantar:
 
 ```sh
-docker compose --env-file .env.production -f docker-compose.prod.yml build --no-cache
-docker compose --env-file .env.production -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml build --no-cache
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ## RECREAR CONTENEDORES
@@ -82,7 +82,7 @@ docker compose --env-file .env.production -f docker-compose.prod.yml up -d
 docker compose up -d --force-recreate
 
 # PRODUCCION (PROD)
-docker compose --env-file .env.production -f docker-compose.prod.yml up -d --force-recreate
+docker compose -f docker-compose.prod.yml up -d --force-recreate
 ```
 
 #### RECONSTRUIR UN CONTENEDOR ESPECIFICO
@@ -93,7 +93,7 @@ Si cambias el `.env.compose` de un solo servicio, recréalo de forma puntual des
 docker compose up <nombre-servicio> -d --force-recreate
 
 # PRODUCCION (PROD)
-docker compose --env-file .env.production -f docker-compose.prod.yml up <nombre-servicio> -d --force-recreate
+docker compose -f docker-compose.prod.yml up <nombre-servicio> -d --force-recreate
 ```
 
 Reemplaza `gateway-service-dev` o `gateway-service` por el servicio que corresponda.

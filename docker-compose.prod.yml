@@ -12,6 +12,7 @@ services:
     build: ./Auth-Service/keycloak
     command: ["start", "--http-enabled=true", "--proxy-headers=xforwarded", "--hostname-strict=true"]
     env_file:
+      - .env
       - ./Auth-Service/.env.compose
     ports:
       - "${KEYCLOAK_BIND_ADDRESS:-127.0.0.1}:${KEYCLOAK_PORT:-8080}:8080"
@@ -28,8 +29,8 @@ services:
       context: ./Gateway-Service
       dockerfile: dockerfile.prod
     env_file:
+      - .env
       - ./Gateway-Service/.env.compose
-      - ${PLATFORM_ENV_FILE:-.env.production}
     ports:
       - ${CLIENT_GATEWAY_PORT}:3000
     restart: always
@@ -39,8 +40,8 @@ services:
       context: ./Beneficiary-Service
       dockerfile: dockerfile.prod
     env_file:
+      - .env
       - ./Beneficiary-Service/.env.compose
-      - ${PLATFORM_ENV_FILE:-.env.production}
     restart: always
 
   global-service:
@@ -48,8 +49,8 @@ services:
       context: ./Global-Service
       dockerfile: dockerfile.prod
     env_file:
+      - .env
       - ./Global-Service/.env.compose
-      - ${PLATFORM_ENV_FILE:-.env.production}
     restart: always
 
   auth-service:
@@ -57,8 +58,8 @@ services:
       context: ./Auth-Service
       dockerfile: dockerfile.prod
     env_file:
+      - .env
       - ./Auth-Service/.env.compose
-      - ${PLATFORM_ENV_FILE:-.env.production}
     depends_on:
       - nats-server
       - redis
@@ -70,8 +71,8 @@ services:
       context: ./Kiosk-Service
       dockerfile: dockerfile.prod
     env_file:
+      - .env
       - ./Kiosk-Service/.env.compose
-      - ${PLATFORM_ENV_FILE:-.env.production}
     restart: always
 
   app-mobile-service:
@@ -79,8 +80,8 @@ services:
       context: ./App-Mobile-Service
       dockerfile: dockerfile.prod
     env_file:
+      - .env
       - ./App-Mobile-Service/.env.compose
-      - ${PLATFORM_ENV_FILE:-.env.production}
     restart: always
   
   records-service:
@@ -88,8 +89,8 @@ services:
       context: ./Records-Service
       dockerfile: dockerfile.prod
     env_file:
+      - .env
       - ./Records-Service/.env.compose
-      - ${PLATFORM_ENV_FILE:-.env.production}
     restart: always
 
   loans-service:
@@ -97,8 +98,8 @@ services:
       context: ./Loans-Service
       dockerfile: dockerfile.prod
     env_file:
+      - .env
       - ./Loans-Service/.env.compose
-      - ${PLATFORM_ENV_FILE:-.env.production}
     restart: always
     
   contributions-service:
@@ -106,8 +107,8 @@ services:
       context: ./Contributions-Service
       dockerfile: dockerfile.prod
     env_file:
+      - .env
       - ./Contributions-Service/.env.compose
-      - ${PLATFORM_ENV_FILE:-.env.production}
     restart: always
 
   sales-service:
@@ -115,8 +116,8 @@ services:
       context: ./Sales-Service
       dockerfile: dockerfile.prod
     env_file:
+      - .env
       - ./Sales-Service/.env.compose
-      - ${PLATFORM_ENV_FILE:-.env.production}
     restart: always
   
   collections-service:
@@ -124,8 +125,8 @@ services:
       context: ./Collections-Service
       dockerfile: dockerfile.prod
     env_file:
+      - .env
       - ./Collections-Service/.env.compose
-      - ${PLATFORM_ENV_FILE:-.env.production}
     restart: always
 
 volumes:

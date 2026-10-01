@@ -24,7 +24,7 @@ Un futuro aprovisionador debe:
 
 ## Ejecución en producción
 
-El launcher ejecuta Keycloak con `start`, no con `start-dev`. El puerto del contenedor se publica por defecto en `127.0.0.1` y debe quedar detrás de un proxy TLS. `KC_HOSTNAME` contiene el origen HTTPS público, mientras Auth-Service usa `OIDC_INTERNAL_BASE_URL=http://keycloak:8080` dentro de la red de Compose.
+El launcher ejecuta Keycloak con `start`, no con `start-dev`. Por defecto publica el puerto en `127.0.0.1` para colocarlo detrás de un proxy TLS. Si la intranet opera deliberadamente con HTTP directo, se usa `KEYCLOAK_BIND_ADDRESS=0.0.0.0` y `KC_HOSTNAME` contiene el origen HTTP público exacto. Auth-Service usa `OIDC_INTERNAL_BASE_URL=http://keycloak:8080` dentro de la red de Compose en ambos casos.
 
 Cambiar la versión de la imagen puede migrar el schema de Keycloak. Antes de actualizarla se necesita respaldo y un plan de reversión probado.
 

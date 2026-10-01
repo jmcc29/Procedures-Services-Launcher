@@ -224,7 +224,7 @@ OIDC_HUB_CALLBACK_URL=http://HOST:3001/api/auth/callback
 OIDC_HUB_POST_LOGOUT_REDIRECT_URL=http://HOST:3001/
 ```
 
-En produccion, cambiar todas las URLs publicas a HTTPS y establecer `AUTH_COOKIE_SECURE=true` en Login Hub y Beneficiary Interface.
+En una producción con HTTPS, usar URLs públicas HTTPS y `AUTH_COOKIE_SECURE=true` en todas las interfaces. Si la intranet opera únicamente con HTTP, conservar URLs públicas HTTP, establecer `AUTH_COOKIE_SECURE=false` y `WEB_AUTH_ALLOW_INSECURE_HTTP=true` en Login-Hub-Interface y agregar `WEB_AUTH_ALLOW_INSECURE_HTTP=true` a `Auth-Service/.env.compose`. El override solo evita el rechazo de configuración: no cifra credenciales, authorization codes, tokens ni cookies en tránsito.
 
 Los defaults opcionales son `hub`, `hub-interface`, `redis:6379`, `muserpol-web`, pending de 600 segundos, sesion absoluta de 28800 segundos, idle de 7200 segundos y margen de refresh de 120 segundos. Para cambiar uno se agrega su variable documentada a `Auth-Service/.env.compose` y se recrea Auth-Service. Cambiar host, puerto o prefijo de Redis durante sesiones activas puede hacer inaccesibles las sesiones existentes; debe planificarse como una invalidacion de sesiones. Reducir TTL afecta las siguientes escrituras y renovaciones de sesion.
 

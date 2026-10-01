@@ -19,6 +19,7 @@ services:
     build: ./Auth-Service/keycloak
     command: ["start-dev"]
     env_file:
+      - .env
       - ./Auth-Service/.env.compose
     ports:
       - "${KEYCLOAK_PORT:-8080}:8080"

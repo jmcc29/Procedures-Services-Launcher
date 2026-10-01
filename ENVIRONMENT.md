@@ -6,12 +6,10 @@ Este documento define dónde vive cada variable. Los archivos `.env` y `.env.com
 
 | Archivo                                 | Alcance                           | Contenido                                              |
 | --------------------------------------- | --------------------------------- | ------------------------------------------------------ |
-| `.env` del launcher backend             | Desarrollo compartido por Compose | PostgreSQL, NATS, ambiente y puertos publicados        |
-| `.env.production` del launcher backend  | Producción compartida por Compose | Infraestructura compartida y puertos productivos       |
+| `.env` del launcher backend             | Compartido por Compose             | PostgreSQL, NATS, ambiente y puertos publicados        |
 | `<servicio>/.env.compose`               | Un microservicio en Compose       | Integraciones y configuración propia del servicio      |
 | `<servicio>/.env`                       | Ejecución standalone              | Equivalente local fuera de Compose                     |
-| `.env` del launcher frontend            | Desarrollo compartido por Compose | Configuración común de las interfaces                  |
-| `.env.production` del launcher frontend | Producción compartida por Compose | Orígenes HTTPS, cookies y argumentos públicos de build |
+| `.env` del launcher frontend            | Compartido por Compose             | Configuración común de las interfaces                  |
 | `<interfaz>/.env`                       | Una interfaz                      | Gateway, origen público y clave de herramienta         |
 
 Las plantillas correspondientes son la fuente versionada. Los secretos se suministran por el ambiente de despliegue.
@@ -23,6 +21,7 @@ Las plantillas correspondientes son la fuente versionada. Los secretos se sumini
 | Variable                                 | Propietario  | Secreta | Finalidad                                               |
 | ---------------------------------------- | ------------ | ------: | ------------------------------------------------------- |
 | `WEB_AUTH_ENABLED`                       | Auth-Service |      No | Activa SID/OIDC/UMA                                     |
+| `WEB_AUTH_ALLOW_INSECURE_HTTP`           | Auth y Hub   |      No | Override explícito para una intranet HTTP productiva    |
 | `ENVIRONMENT`                            | Servicios    |      No | Separa claves Redis y activa validaciones de producción |
 | `REDIS_PORT`                             | Compose      |      No | Puerto local expuesto en desarrollo                     |
 | `KEYCLOAK_PORT`, `KEYCLOAK_BIND_ADDRESS` | Compose      |      No | Publicación controlada de Keycloak                      |
@@ -70,7 +69,8 @@ Todas las interfaces SID usan:
 | `GATEWAY_INTERNAL_URL`      | Solo servidor         | Origen usado por el BFF para llamar al Gateway |
 | `HUB_PUBLIC_ORIGIN`         | Solo servidor         | Origen público permitido para volver al Hub    |
 | `AUTH_TOOL_KEY`             | Solo servidor         | Clave del catálogo de Auth                     |
-| `AUTH_COOKIE_SECURE`        | Solo servidor         | Debe ser `true` con HTTPS en producción        |
+| `AUTH_COOKIE_SECURE`        | Solo servidor del Hub | Debe ser `true` con HTTPS en producción        |
+| `WEB_AUTH_ALLOW_INSECURE_HTTP` | Solo servidor del Hub | Permite HTTP productivo de forma explícita   |
 | `AUTH_PENDING_TTL_SECONDS`  | Solo servidor         | Vigencia del binding OIDC del Hub              |
 | `BENEFICIARY_PUBLIC_ORIGIN` | Solo servidor del Hub | Destino público de Beneficiary                 |
 | `SALES_PUBLIC_ORIGIN`       | Solo servidor del Hub | Destino público de Sales                       |
@@ -84,12 +84,11 @@ Los valores `NEXT_PUBLIC_*` solo deben contener datos que puedan entregarse al n
 
 ## Desarrollo y producción
 
-- El launcher backend usa `.env` para desarrollo y `.env.production` para producción.
-- El launcher frontend sigue la misma separación.
-- Los archivos productivos se crean desde `.env.production.template`, permanecen ignorados y se pasan mediante `docker compose --env-file .env.production`.
+- Ambos launchers usan su `.env` raíz en desarrollo y producción; el archivo real permanece ignorado y se completa para el ambiente donde se despliega.
+- El backend carga primero `.env` y después el `.env.compose` de cada servicio, que puede sobrescribir valores compartidos dentro de ese contenedor.
 - Los `.env.compose` contienen integraciones específicas del despliegue de cada microservicio; no se copian desde desarrollo sin revisión.
 - Desarrollo puede usar HTTP y nombres de servicio internos en `GATEWAY_INTERNAL_URL` y `OIDC_INTERNAL_BASE_URL`.
-- Producción requiere HTTPS en los orígenes públicos y `AUTH_COOKIE_SECURE=true`.
+- HTTPS y `AUTH_COOKIE_SECURE=true` son la configuración recomendada. Una intranet que opere deliberadamente con HTTP debe usar `AUTH_COOKIE_SECURE=false` en el Hub y habilitar explícitamente `WEB_AUTH_ALLOW_INSECURE_HTTP=true` tanto en el Hub como en Auth-Service.
 - El issuer público debe coincidir exactamente con el `iss` de los tokens.
 - No se deben copiar direcciones particulares de desarrollo a las plantillas.
 - Los Compose de producción deben revisarse de forma separada antes del despliegue; no se asume que heredan automáticamente las variables nuevas del Compose de desarrollo.
