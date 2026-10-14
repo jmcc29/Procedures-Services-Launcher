@@ -83,15 +83,12 @@ Configurar los tiempos de sesión según [WEB-AUTHENTICATION.md](./WEB-AUTHENTIC
 
 ## Enlaces del manual en el tema
 
-El tema personalizado admite enlaces HTTPS a secciones específicas de un
-mismo manual, incluido un documento de Google Docs. Se configuran en
-`Auth-Service/.env.compose`:
+El tema personalizado admite un enlace HTTPS a un manual, incluido un
+documento de Google Docs. Se configura en `Auth-Service/.env.compose` y se
+reutiliza en todas las ayudas del login y de OTP:
 
 ```env
-KEYCLOAK_LOGIN_HELP_URL=https://docs.google.com/...#seccion-ingreso
-KEYCLOAK_OTP_SETUP_HELP_URL=https://docs.google.com/...#seccion-configuracion-otp
-KEYCLOAK_OTP_USAGE_HELP_URL=https://docs.google.com/...#seccion-uso-otp
-KEYCLOAK_OTP_MANUAL_HELP_URL=https://docs.google.com/...#seccion-clave-manual
+KEYCLOAK_USER_MANUAL_URL=https://docs.google.com/document/d/.../edit
 ```
 
 Keycloak genera las propiedades del tema al iniciar su contenedor. Cambiar
@@ -100,7 +97,7 @@ imagen. Una variable vacía oculta el enlace correspondiente. Una URL no vacía
 debe usar HTTPS.
 
 La pantalla de configuración OTP muestra siempre el código QR y la clave
-manual. El enlace `KEYCLOAK_OTP_MANUAL_HELP_URL` aparece junto a esa clave.
+manual, junto con un único enlace general al manual.
 
 ## Cliente `hub-interface`
 
