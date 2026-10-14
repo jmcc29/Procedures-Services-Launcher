@@ -81,6 +81,27 @@ El realm esperado por los ejemplos es `muserpol`. Debe coincidir con `OIDC_ISSUE
 
 Configurar los tiempos de sesión según [WEB-AUTHENTICATION.md](./WEB-AUTHENTICATION.md). La federación LDAP pertenece a Keycloak; sus credenciales y conexión son configuración del ambiente y no deben incorporarse a un export versionado.
 
+## Enlaces del manual en el tema
+
+El tema personalizado admite enlaces HTTPS a secciones específicas de un
+mismo manual, incluido un documento de Google Docs. Se configuran en
+`Auth-Service/.env.compose`:
+
+```env
+KEYCLOAK_LOGIN_HELP_URL=https://docs.google.com/...#seccion-ingreso
+KEYCLOAK_OTP_SETUP_HELP_URL=https://docs.google.com/...#seccion-configuracion-otp
+KEYCLOAK_OTP_USAGE_HELP_URL=https://docs.google.com/...#seccion-uso-otp
+KEYCLOAK_OTP_MANUAL_HELP_URL=https://docs.google.com/...#seccion-clave-manual
+```
+
+Keycloak genera las propiedades del tema al iniciar su contenedor. Cambiar
+estos valores requiere recrear el servicio `keycloak`, pero no reconstruir su
+imagen. Una variable vacía oculta el enlace correspondiente. Una URL no vacía
+debe usar HTTPS.
+
+La pantalla de configuración OTP muestra siempre el código QR y la clave
+manual. El enlace `KEYCLOAK_OTP_MANUAL_HELP_URL` aparece junto a esa clave.
+
 ## Cliente `hub-interface`
 
 Configuración mínima:
