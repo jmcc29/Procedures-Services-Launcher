@@ -45,7 +45,7 @@ No se debe igualar el `sid` con la vida del access token. El access token debe s
 
 ## 3. Configuracion de Keycloak
 
-En Keycloak, dentro del realm utilizado por `OIDC_ISSUER`:
+En Keycloak, dentro del realm `muserpol`:
 
 ### Realm settings > Sessions
 
@@ -75,14 +75,14 @@ Configurar:
 - **Client authentication**: `On`; `hub-interface` es siempre confidencial.
 - **Standard flow**: habilitado.
 - **Direct access grants**: deshabilitado salvo que exista un caso explicito.
-- **Valid redirect URIs**: debe coincidir exactamente con `OIDC_HUB_CALLBACK_URL`, por ejemplo:
+- **Valid redirect URIs**: debe coincidir con la URL derivada de `AUTH_PUBLIC_ORIGIN`, `AUTH_HUB_PORT` y `CALLBACK_PATH`, por ejemplo:
 
   ```text
   http://192.168.2.241:3001/api/auth/callback
   ```
 
 - **Web origins**: usar un origen concreto, por ejemplo `http://192.168.2.241:3001`; no usar `*` en produccion.
-- **Valid post logout redirect URIs**: debe incluir exactamente el origen definido por `OIDC_HUB_POST_LOGOUT_REDIRECT_URL`, por ejemplo:
+- **Valid post logout redirect URIs**: debe incluir exactamente el origen público derivado del Hub, por ejemplo:
 
   ```text
   http://192.168.2.241:3001/
@@ -217,11 +217,10 @@ Una WebSession creada por una versión que no persistía `primary.keycloakSessio
 En `Auth-Service/.env.compose` y en su plantilla deben existir:
 
 ```env
-OIDC_ISSUER=http://keycloak:8080/realms/muserpol
+AUTH_PUBLIC_ORIGIN=http://HOST
 OIDC_INTERNAL_BASE_URL=http://keycloak:8080
 OIDC_HUB_CLIENT_SECRET=<secreto>
-OIDC_HUB_CALLBACK_URL=http://HOST:3001/api/auth/callback
-OIDC_HUB_POST_LOGOUT_REDIRECT_URL=http://HOST:3001/
+AUTH_TOOL_CLIENTS={"beneficiary":{"clientId":"beneficiary-interface"},"sales":{"clientId":"sales-interface"},"collections":{"clientId":"collections-interface"}}
 ```
 
 En una producción con HTTPS, usar URLs públicas HTTPS y `AUTH_COOKIE_SECURE=true` en todas las interfaces. Si la intranet opera únicamente con HTTP, conservar URLs públicas HTTP, establecer `AUTH_COOKIE_SECURE=false` y `WEB_AUTH_ALLOW_INSECURE_HTTP=true` en Login-Hub-Interface y agregar `WEB_AUTH_ALLOW_INSECURE_HTTP=true` a `Auth-Service/.env.compose`. El override solo evita el rechazo de configuración: no cifra credenciales, authorization codes, tokens ni cookies en tránsito.

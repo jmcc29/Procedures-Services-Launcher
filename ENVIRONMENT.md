@@ -26,34 +26,32 @@ Las plantillas correspondientes son la fuente versionada. Los secretos se sumini
 | `REDIS_PORT`                             | Compose      |      No | Puerto local expuesto en desarrollo                     |
 | `KEYCLOAK_PORT`, `KEYCLOAK_BIND_ADDRESS` | Compose      |      No | Publicación controlada de Keycloak                      |
 
-`WEB_REDIS_PASSWORD` y las variables dinámicas `KC_*` viven en `Auth-Service/.env.compose`. Redis, Keycloak y Auth-Service reciben ese archivo dentro del mismo límite de infraestructura de autenticación. `KC_BOOTSTRAP_ADMIN_USER` y `KC_BOOTSTRAP_ADMIN_PASSWORD` crean el administrador inicial cuando corresponde. No describen usuarios funcionales ni sustituyen la configuración del realm.
+`WEB_REDIS_PASSWORD` y las variables propias de Keycloak viven en `Auth-Service/.env.compose`. Keycloak reutiliza la conexión `DB_*` del launcher y solo separa sus tablas mediante `KC_DB_SCHEMA`. `KC_BOOTSTRAP_ADMIN_USER` y `KC_BOOTSTRAP_ADMIN_PASSWORD` crean el administrador inicial cuando corresponde.
 
 ### Auth-Service
 
 | Variable                            | Secreta | Regla                                                        |
 | ----------------------------------- | ------: | ------------------------------------------------------------ |
-| `OIDC_ISSUER`                       |      No | Issuer público exacto del realm                              |
+| `AUTH_PUBLIC_ORIGIN`                |      No | Esquema y host públicos comunes, sin puerto ni ruta           |
+| `AUTH_HUB_PORT`                      |      No | Override; default `3001`                                      |
+| `CALLBACK_PATH`                     |      No | Override; default `/api/auth/callback`                        |
 | `OIDC_INTERNAL_BASE_URL`            |      No | Origen interno de Keycloak; no cambia el issuer esperado     |
 | `OIDC_HUB_TOOL_KEY`                 |      No | Override opcional; default `hub`                             |
 | `OIDC_HUB_CLIENT_ID`                |      No | Override opcional; default `hub-interface`                   |
 | `OIDC_HUB_CLIENT_SECRET`            |      Sí | Obligatoria; el Hub siempre es confidencial                  |
-| `OIDC_HUB_CALLBACK_URL`             |      No | URL exacta `<hub>/api/auth/callback`                         |
-| `OIDC_HUB_POST_LOGOUT_REDIRECT_URL` |      No | URL pública del Hub tras logout                              |
-| `WEB_CLIENT_CATALOG`                |      No | Mapa tool → clientId; Auth deriva audience y resource server |
+| `AUTH_TOOL_CLIENTS`                 |      No | Mapa `AUTH_TOOL_KEY` → clientId                              |
 | `WEB_REDIS_HOST`, `WEB_REDIS_PORT`  |      No | Overrides opcionales; defaults `redis` y `6379`              |
 | `WEB_REDIS_PASSWORD`                |      Sí | Contraseña compartida con el contenedor Redis                |
-| `KC_*`                              | Algunas | Base, hostname, proxy y bootstrap de Keycloak                |
+| `KC_DB_SCHEMA`, `KC_*`              | Algunas | Schema, hostname opcional y bootstrap de Keycloak            |
 | `WEB_REDIS_KEY_PREFIX`              |      No | Override opcional; default `muserpol-web`                    |
 | `WEB_*_TTL_SECONDS`                 |      No | Overrides opcionales de los tiempos predeterminados          |
 
 Configuración mínima sin secretos:
 
 ```env
-OIDC_ISSUER=https://keycloak.example.test/realms/muserpol
+AUTH_PUBLIC_ORIGIN=https://plataforma.example.test
 OIDC_INTERNAL_BASE_URL=http://keycloak:8080
-OIDC_HUB_CALLBACK_URL=https://hub.example.test/api/auth/callback
-OIDC_HUB_POST_LOGOUT_REDIRECT_URL=https://hub.example.test/
-WEB_CLIENT_CATALOG={"beneficiary":{"clientId":"beneficiary-interface"},"sales":{"clientId":"sales-interface"},"collections":{"clientId":"collections-interface"}}
+AUTH_TOOL_CLIENTS={"beneficiary":{"clientId":"beneficiary-interface"},"sales":{"clientId":"sales-interface"},"collections":{"clientId":"collections-interface"}}
 ```
 
 Los defaults y sus overrides están comentados en `Auth-Service/.env.compose.template`. Para cambiar uno, se agrega la variable al `.env.compose` real y se recrea `auth-service-dev`. Los cambios `KC_*` requieren recrear Keycloak; cambiar `KC_DB_SCHEMA` o la base exige preparar previamente el destino y nunca mueve datos existentes.

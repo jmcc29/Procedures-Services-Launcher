@@ -269,6 +269,8 @@ Archivo documentado: `Gateway-Service/.env.compose.template`
 
 Archivo documentado: `Auth-Service/.env.compose.template`
 
+La configuración SID/OIDC/Keycloak se documenta en [ENVIRONMENT.md](./ENVIRONMENT.md). Keycloak comparte las variables `DB_*` del launcher; `Auth-Service/.env.compose` solo define `KC_DB_SCHEMA`. Las claves de `AUTH_TOOL_CLIENTS` deben coincidir con `AUTH_TOOL_KEY` en cada frontend.
+
 <table width="100%">
   <thead>
     <tr>
@@ -278,16 +280,6 @@ Archivo documentado: `Auth-Service/.env.compose.template`
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td><code>DB_SCHEMA</code></td>
-      <td><code>auth</code><br><code>public</code></td>
-      <td>Define el schema PostgreSQL sobre el que corre <code>Auth-Service</code>. Permite aislar tablas de autenticacion dentro de una base compartida; si apunta al schema equivocado, TypeORM buscara usuarios, sesiones o entidades de auth en otra zona de la base.</td>
-    </tr>
-    <tr>
-      <td><code>LDAP_AUTHENTICATION</code></td>
-      <td><code>true</code><br><code>false</code></td>
-      <td>Bandera operativa pensada para habilitar o deshabilitar la autenticacion LDAP. Aunque el codigo actual no muestra un consumo fuerte de esta clave en todos los flujos, su sentido es controlar si la fuente de identidad externa LDAP debe considerarse activa.</td>
-    </tr>
     <tr>
       <td><code>LDAP_HOST</code></td>
       <td><code>localhost</code><br><code>ldap.server.com</code></td>
@@ -312,16 +304,6 @@ Archivo documentado: `Auth-Service/.env.compose.template`
       <td><code>LDAP_ADMIN_PASSWORD</code></td>
       <td><code>password</code><br><code>secure_pass</code></td>
       <td>Contraseña del usuario administrador LDAP. Sin ella el servicio no puede hacer bind contra el directorio y, por tanto, tampoco consultar o validar usuarios desde LDAP.</td>
-    </tr>
-    <tr>
-      <td><code>LDAP_ACCOUNT_PREFIX</code></td>
-      <td><code>uid</code><br><code>cn</code></td>
-      <td>Prefijo pensado para la forma en que se identifican las cuentas de usuario final en el directorio. Aunque no siempre se consume de manera explicita en todos los flujos del codigo, documenta la convencion con la que deberian construirse o buscarse los DNs de usuario.</td>
-    </tr>
-    <tr>
-      <td><code>LDAP_ACCOUNT_SUFFIX</code></td>
-      <td><code>"o=users"</code><br><code>"ou=people"</code></td>
-      <td>Rama organizacional donde viven las cuentas LDAP del usuario final. Sirve para completar la ruta del arbol LDAP; si no coincide con la estructura real, el servicio buscara usuarios en la rama equivocada y no encontrara resultados.</td>
     </tr>
     <tr>
       <td><code>LDAP_BASEDN</code></td>

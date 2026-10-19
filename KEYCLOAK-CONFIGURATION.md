@@ -24,11 +24,11 @@ Un futuro aprovisionador debe:
 
 ## Ejecución en producción
 
-El launcher ejecuta Keycloak con `start`, no con `start-dev`. Por defecto publica el puerto en `127.0.0.1` para colocarlo detrás de un proxy TLS. Si la intranet opera deliberadamente con HTTP directo, se usa `KEYCLOAK_BIND_ADDRESS=0.0.0.0` y `KC_HOSTNAME` contiene el origen HTTP público exacto. Auth-Service usa `OIDC_INTERNAL_BASE_URL=http://keycloak:8080` dentro de la red de Compose en ambos casos.
+El launcher ejecuta Keycloak con `start`, no con `start-dev`. Por defecto publica el puerto en `127.0.0.1` para colocarlo detrás de un proxy TLS. Si la intranet opera deliberadamente con HTTP directo, se usa `KEYCLOAK_BIND_ADDRESS=0.0.0.0`. `KC_HOSTNAME` se deriva de `AUTH_PUBLIC_ORIGIN` y `KEYCLOAK_PORT`; puede definirse como override cuando un proxy publique otra URL. Auth-Service usa `OIDC_INTERNAL_BASE_URL=http://keycloak:8080` dentro de la red de Compose.
 
 Cambiar la versión de la imagen puede migrar el schema de Keycloak. Antes de actualizarla se necesita respaldo y un plan de reversión probado.
 
-Keycloak usa por defecto PostgreSQL en el puerto `5432` y el schema `keycloak`, definidos en `Auth-Service/keycloak/keycloak.conf`. `KC_DB_URL_PORT` y `KC_DB_SCHEMA` pueden añadirse a `Auth-Service/.env.compose` para sobrescribirlos. El cambio solo afecta la conexión del siguiente arranque: no crea, copia ni migra los datos del schema anterior.
+Keycloak comparte `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` y `DB_PASSWORD` con los microservicios mediante el `.env` del launcher. Solo `KC_DB_SCHEMA` se configura en `Auth-Service/.env.compose`. Cambiarlo no crea, copia ni migra los datos del schema anterior.
 
 ## Traslado inicial a un ambiente de pruebas
 
@@ -77,7 +77,7 @@ El launcher no modifica automáticamente las URL almacenadas en Keycloak. El val
 
 ## Realm
 
-El realm esperado por los ejemplos es `muserpol`. Debe coincidir con `OIDC_ISSUER`.
+El realm administrado por esta implementación es `muserpol`.
 
 Configurar los tiempos de sesión según [WEB-AUTHENTICATION.md](./WEB-AUTHENTICATION.md). La federación LDAP pertenece a Keycloak; sus credenciales y conexión son configuración del ambiente y no deben incorporarse a un export versionado.
 
@@ -106,8 +106,8 @@ Configuración mínima:
 - protocolo OpenID Connect;
 - Standard Flow habilitado;
 - cliente confidencial con **Client authentication** habilitado;
-- redirect URI exacta igual a `OIDC_HUB_CALLBACK_URL`;
-- post logout redirect URI exacta igual a `OIDC_HUB_POST_LOGOUT_REDIRECT_URL`;
+- redirect URI exacta derivada de `AUTH_PUBLIC_ORIGIN`, `AUTH_HUB_PORT` y `CALLBACK_PATH`;
+- post logout redirect URI igual al origen público derivado del Hub;
 - Web Origins vacío o restringido, sin comodines; el BFF no usa llamadas OIDC desde JavaScript;
 - Backchannel Logout URL: `<gateway-public-origin>/api/auth/backchannel-logout`;
 - Backchannel Logout Session Required habilitado;
@@ -126,7 +126,7 @@ Los valores reales deben usar el host visible por el navegador y, para backchann
 
 ## Herramientas
 
-Cada herramienta del `WEB_CLIENT_CATALOG` tiene su propio cliente y Authorization Services:
+Cada herramienta de `AUTH_TOOL_CLIENTS` tiene su propio cliente y Authorization Services. Sus claves deben coincidir con `AUTH_TOOL_KEY` en los frontends:
 
 | Tool key      | Client ID / audience / resource server |
 | ------------- | -------------------------------------- |
@@ -184,8 +184,8 @@ KEYCLOAK_ADMIN_URL=https://keycloak.example.test
 KEYCLOAK_ADMIN_REALM=master
 KEYCLOAK_ADMIN_USERNAME=<administrador>
 KEYCLOAK_ADMIN_PASSWORD=<secreto>
-OIDC_HUB_CALLBACK_URL=https://hub.example.test/api/auth/callback
-OIDC_HUB_POST_LOGOUT_REDIRECT_URL=https://hub.example.test/
+EXPECTED_HUB_CALLBACK_URL=https://hub.example.test/api/auth/callback
+EXPECTED_HUB_POST_LOGOUT_URL=https://hub.example.test/
 KEYCLOAK_BACKCHANNEL_LOGOUT_URL=https://gateway.example.test/api/auth/backchannel-logout
 ```
 
