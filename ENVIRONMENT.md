@@ -54,7 +54,7 @@ OIDC_INTERNAL_BASE_URL=http://keycloak:8080
 AUTH_TOOL_CLIENTS={"beneficiary":{"clientId":"beneficiary-interface"},"sales":{"clientId":"sales-interface"},"collections":{"clientId":"collections-interface"}}
 ```
 
-Los defaults y sus overrides están comentados en `Auth-Service/.env.compose.template`. Para cambiar uno, se agrega la variable al `.env.compose` real y se recrea `auth-service-dev`. Los cambios `KC_*` requieren recrear Keycloak; cambiar `KC_DB_SCHEMA` o la base exige preparar previamente el destino y nunca mueve datos existentes.
+Los defaults y sus overrides están documentados en esta sección y en `Auth-Service/.env.template`, que sirve de referencia para la ejecución standalone. Para cambiar uno en Docker Compose, se agrega la variable al `.env.compose` real y se recrea `auth-service-dev`. Los cambios `KC_*` requieren recrear Keycloak; cambiar `KC_DB_SCHEMA` o la base exige preparar previamente el destino y nunca mueve datos existentes.
 
 Agregar una herramienta exige agregar una entrada al catálogo y configurar el cliente correspondiente en Keycloak. La clave enviada por el frontend nunca puede elegir un clientId arbitrario.
 
